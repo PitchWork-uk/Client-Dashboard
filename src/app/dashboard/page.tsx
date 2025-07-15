@@ -1,4 +1,5 @@
-"use client"
+import { fetchTasksFromNotion, TaskRow } from "@/lib/notion";
+import { DashboardTable } from "@/components/dashboard-table";
 
 import { AppSidebar } from "@/components/app-sidebar"
 import {
@@ -21,7 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, File, User, Calendar } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
-export default function Page() {
+export default async function Page() {
+    const databaseId = process.env.NOTION_DATABASE_ID!;
+    const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [
         { accessorKey: "id", header: "ID" },
         {
@@ -133,7 +136,7 @@ export default function Page() {
                     </div>
                     <div className="mt-8 w-full">
                         <h2 className="text-xl font-semibold mb-4">Tasks</h2>
-                        <DataTable columns={columns} data={data} />
+                        <DashboardTable data={data} />
                     </div>
                     <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
                 </div>
@@ -141,70 +144,3 @@ export default function Page() {
         </SidebarProvider>
     )
 }
-
-type TaskRow = {
-    id: string;
-    title: string;
-    project: string;
-    type: string;
-    priority: string;
-    status: string;
-    date: string;
-};
-
-const data: TaskRow[] = [
-    {
-        id: "WK-17",
-        title: "Shirt Design Request",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "High",
-        status: "In progress",
-        date: "July 1, 2025 → July 7, 2025",
-    },
-    {
-        id: "WK-18",
-        title: "Ascot - Proposal Document",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "High",
-        status: "In progress",
-        date: "July 6, 2025 → July 9, 2025",
-    },
-    {
-        id: "WK-19",
-        title: "Diagram Redesign",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "High",
-        status: "In progress",
-        date: "July 9, 2025 → July 11, 2025",
-    },
-    {
-        id: "WK-20",
-        title: "AWS Public Sector Document",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "High",
-        status: "In progress",
-        date: "July 9, 2025 → July 14, 2025",
-    },
-    {
-        id: "WK-21",
-        title: "Insurance Case Studies Redesign",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "High",
-        status: "In progress",
-        date: "July 9, 2025 → July 18, 2025",
-    },
-    {
-        id: "WK-22",
-        title: "Documents Design (AI docs)",
-        project: "ES - July 2025",
-        type: "Task",
-        priority: "Critical",
-        status: "In progress",
-        date: "July 9, 2025 → July 21, 2025",
-    },
-];
