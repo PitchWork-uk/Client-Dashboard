@@ -1,21 +1,59 @@
 "use client";
 
-import { DataTable } from "@/components/ui/data-table";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { File, Calendar } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+    ColumnDef,
+    SortingState,
+    getCoreRowModel,
+    getSortedRowModel,
+    useReactTable,
+    flexRender,
+} from "@tanstack/react-table";
 import { TaskRow } from "@/lib/notion";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 interface DashboardTableProps {
     data: TaskRow[];
 }
 
 export function DashboardTable({ data }: DashboardTableProps) {
+    const [sorting, setSorting] = useState<SortingState>([]);
+
     const columns: ColumnDef<TaskRow>[] = [
-        { accessorKey: "id", header: "ID" },
+        {
+            accessorKey: "id",
+            header: ({ column }) => (
+                <button
+                    className="flex items-center gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    ID
+                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
+                </button>
+            ),
+            enableSorting: true,
+        },
         {
             accessorKey: "title",
-            header: "Title",
+            header: ({ column }) => (
+                <button
+                    className="flex items-center gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Title
+                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
+                </button>
+            ),
+            enableSorting: true,
             cell: ({ row }) => (
                 <div className="flex items-center gap-2 font-semibold text-black">
                     {row.getValue("title")}
@@ -24,7 +62,16 @@ export function DashboardTable({ data }: DashboardTableProps) {
         },
         {
             accessorKey: "project",
-            header: "Project",
+            header: ({ column }) => (
+                <button
+                    className="flex items-center gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Project
+                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
+                </button>
+            ),
+            enableSorting: true,
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
                     <File size={16} />
@@ -34,17 +81,31 @@ export function DashboardTable({ data }: DashboardTableProps) {
         },
         {
             accessorKey: "date",
-            header: () => (
-                <div className="flex items-center gap-2">
+            header: ({ column }) => (
+                <button
+                    className="flex items-center gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
                     <Calendar size={16} />
                     <span>Date</span>
-                </div>
+                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
+                </button>
             ),
+            enableSorting: true,
+            sortingFn: (rowA, rowB, columnId) => {
+                // Custom sort for date range strings
+                const getStartDate = (val: string) => {
+                    const dateStr = val.split("→")[0].trim();
+                    return new Date(dateStr).getTime();
+                };
+                return getStartDate(rowA.getValue(columnId)) - getStartDate(rowB.getValue(columnId));
+            },
             cell: ({ row }) => <span>{row.getValue("date")}</span>,
         },
         {
             accessorKey: "type",
             header: "Type",
+            enableSorting: false,
             cell: ({ row }) => (
                 <Badge variant="outline" className={row.original.typeColor}>
                     {row.getValue("type")}
@@ -54,20 +115,17 @@ export function DashboardTable({ data }: DashboardTableProps) {
         {
             accessorKey: "priority",
             header: "Priority",
-            cell: ({ row }) => {
-                const value = row.getValue("priority") as string;
-                let badgeClass = "bg-pink-100 text-pink-800 border-pink-200";
-                if (value === "Critical") badgeClass = "bg-red-100 text-red-800 border-red-200";
-                return (
-                    <Badge variant="outline" className={row.original.priorityColor}>
-                        {value}
-                    </Badge>
-                );
-            },
+            enableSorting: false,
+            cell: ({ row }) => (
+                <Badge variant="outline" className={row.original.priorityColor}>
+                    {row.getValue("priority")}
+                </Badge>
+            ),
         },
         {
             accessorKey: "status",
             header: "Status",
+            enableSorting: false,
             cell: ({ row }) => (
                 <Badge variant="outline" className={row.original.statusColor}>
                     {row.getValue("status")}
@@ -76,5 +134,57 @@ export function DashboardTable({ data }: DashboardTableProps) {
         },
     ];
 
-    return <DataTable columns={columns} data={data} />;
+    const table = useReactTable({
+        data,
+        columns,
+        state: { sorting },
+        onSortingChange: setSorting,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+    });
+
+    return (
+        <div className="rounded-md border">
+            <Table>
+                <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => (
+                                <TableHead key={header.id}>
+                                    {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                </TableHead>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableHeader>
+                <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                            <TableRow
+                                key={row.id}
+                                data-state={row.getIsSelected() && "selected"}
+                            >
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+                                No results.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+    );
 } 
