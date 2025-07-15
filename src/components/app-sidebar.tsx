@@ -26,6 +26,9 @@ import {
     SidebarHeader,
     SidebarRail,
     useSidebar,
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarGroupContent,
 } from "@/components/ui/sidebar"
 import Image from "next/image"
 
@@ -162,6 +165,12 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { state } = useSidebar();
     const isCollapsed = state === "collapsed";
+    // Sample projects data
+    const projects = [
+        { name: "Design Engineering", url: "#" },
+        { name: "Sales & Marketing", url: "#" },
+        { name: "Travel", url: "#" },
+    ];
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -182,6 +191,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         {!isCollapsed && <span>Files</span>}
                     </a>
                 </nav>
+                <SidebarGroup className="mt-6">
+                    <SidebarGroupLabel className={isCollapsed ? "justify-center" : undefined}>
+                        {!isCollapsed && "Projects"}
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        {projects.map((project) => (
+                            <a
+                                key={project.name}
+                                href={project.url}
+                                className={isCollapsed ? "flex items-center justify-center w-12 h-12 rounded-md hover:bg-muted transition-colors font-medium" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
+                            >
+                                <File size={20} />
+                                {!isCollapsed && <span>{project.name}</span>}
+                            </a>
+                        ))}
+                    </SidebarGroupContent>
+                </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
                 <div className={isCollapsed ? "flex justify-center items-center w-full pb-4" : undefined}>
