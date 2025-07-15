@@ -46,7 +46,7 @@ export function DashboardTable({ data }: DashboardTableProps) {
             accessorKey: "type",
             header: "Type",
             cell: ({ row }) => (
-                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                <Badge variant="outline" className={row.original.typeColor}>
                     {row.getValue("type")}
                 </Badge>
             ),
@@ -59,7 +59,7 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 let badgeClass = "bg-pink-100 text-pink-800 border-pink-200";
                 if (value === "Critical") badgeClass = "bg-red-100 text-red-800 border-red-200";
                 return (
-                    <Badge variant="outline" className={badgeClass}>
+                    <Badge variant="outline" className={row.original.priorityColor}>
                         {value}
                     </Badge>
                 );
@@ -68,16 +68,11 @@ export function DashboardTable({ data }: DashboardTableProps) {
         {
             accessorKey: "status",
             header: "Status",
-            cell: ({ row }) => {
-                const value = row.getValue("status") as string;
-                let badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
-                if (value === "Waiting for approval") badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
-                return (
-                    <Badge variant="outline" className={badgeClass}>
-                        {value}
-                    </Badge>
-                );
-            },
+            cell: ({ row }) => (
+                <Badge variant="outline" className={row.original.statusColor}>
+                    {row.getValue("status")}
+                </Badge>
+            ),
         },
     ];
 
