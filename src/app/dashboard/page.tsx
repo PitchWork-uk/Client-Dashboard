@@ -118,10 +118,16 @@ export default async function Page() {
                         <Card>
                             <CardHeader>
                                 <CardDescription>Ongoing Tasks</CardDescription>
-                                <CardTitle className="text-2xl font-semibold tabular-nums">00</CardTitle>
+                                <CardTitle className="text-2xl font-semibold tabular-nums">
+                                    {data.length.toString().padStart(2, "0")}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-muted-foreground text-sm">No ongoing tasks at the moment</div>
+                                <div className="text-muted-foreground text-sm">
+                                    {data.length === 0
+                                        ? "No ongoing tasks at the moment"
+                                        : `${data.length} ongoing task${data.length > 1 ? "s" : ""}`}
+                                </div>
                             </CardContent>
                         </Card>
                         <Card>
