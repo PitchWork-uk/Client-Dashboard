@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { fetchTasksFromNotion, TaskRow } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
 
@@ -23,6 +25,11 @@ import { Plus, File, User, Calendar } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default async function Page() {
+    const cookieStore = await cookies();
+    const auth = cookieStore.get("auth");
+    if (!auth || auth.value !== "1") {
+        redirect("/");
+    }
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [

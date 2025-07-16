@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
         }
         const client = await fetchClientByIdAndPassword(databaseId, clientId, password);
         if (client) {
-            return NextResponse.json({ message: "Login successful" });
+            const res = NextResponse.json({ message: "Login successful" });
+            res.cookies.set("auth", "1", { httpOnly: true, path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production" });
+            return res;
         } else {
             return NextResponse.json({ message: "Invalid client ID or password" }, { status: 401 });
         }
