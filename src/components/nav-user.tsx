@@ -30,6 +30,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation";
 
 export function NavUser({
     user,
@@ -42,6 +43,7 @@ export function NavUser({
 }) {
     const { isMobile, state } = useSidebar();
     const isCollapsed = state === "collapsed";
+    const router = useRouter();
 
     return (
         <SidebarMenu>
@@ -82,7 +84,12 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={async () => {
+                                await fetch("/api/logout", { method: "POST" });
+                                router.push("/");
+                            }}
+                        >
                             <LogOut />
                             Log out
                         </DropdownMenuItem>
