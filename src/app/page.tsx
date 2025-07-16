@@ -17,13 +17,13 @@ export default function SignInPage() {
     e.preventDefault();
     setError("");
     const formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
+    const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     startTransition(async () => {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
         router.push("/dashboard");
@@ -61,13 +61,13 @@ export default function SignInPage() {
           )}
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <div className="grid gap-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="Enter your username"
-                autoComplete="username"
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                autoComplete="email"
                 required
                 className="bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-400"
               />

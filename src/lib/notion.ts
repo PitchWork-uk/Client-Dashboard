@@ -52,16 +52,16 @@ export async function fetchTasksFromNotion(databaseId: string): Promise<TaskRow[
     });
 }
 
-// Fetch a client by client id and password from Notion
-export async function fetchClientByIdAndPassword(databaseId: string, clientId: string, password: string) {
+
+export async function fetchClientByEmailAndPassword(databaseId: string, email: string, password: string) {
     const response = await notion.databases.query({
         database_id: databaseId,
         filter: {
             and: [
                 {
-                    property: "Client ID",
-                    unique_id: {
-                        equals: Number(clientId),
+                    property: "Email",
+                    rich_text: {
+                        equals: email,
                     },
                 },
                 {
@@ -76,25 +76,39 @@ export async function fetchClientByIdAndPassword(databaseId: string, clientId: s
     return response.results[0] || null;
 }
 
-export async function fetchClientByUsernameAndPassword(databaseId: string, username: string, password: string) {
+export async function fetchClientByEmail(databaseId: string, email: string) {
     const response = await notion.databases.query({
         database_id: databaseId,
         filter: {
-            and: [
-                {
-                    property: "Username",
-                    rich_text: {
-                        equals: username,
-                    },
-                },
-                {
-                    property: "Password",
-                    number: {
-                        equals: Number(password),
-                    },
-                },
-            ],
+            property: "Email",
+            rich_text: {
+                equals: email,
+            },
         },
     });
     return response.results[0] || null;
+}
+
+export async function fetchProjectsForClient(databaseId: string, clientEmail: string) {
+    const response = await notion.databases.query({
+        database_id: databaseId,
+
+        filter: {
+            property: "Email",
+            rollup: {
+
+                any: {
+                    rich_text: {
+                        contains: clientEmail,
+                    },
+                },
+            },
+        },
+    });
+    console.log(response.results)
+    return response.results.map((page: any) => ({
+        id: page.id,
+        name: page.properties?.Title?.title?.[0]?.plain_text || "",
+        // Add more fields as needed
+    }));
 } 

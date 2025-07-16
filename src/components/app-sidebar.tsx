@@ -162,15 +162,9 @@ const data = {
     ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, projects = [], ...props }: { user: { name: string; email: string; type: string }; projects?: { id: string; name: string }[] } & React.ComponentProps<typeof Sidebar>) {
     const { state } = useSidebar();
     const isCollapsed = state === "collapsed";
-    // Sample projects data
-    const projects = [
-        { name: "Design Engineering", url: "#" },
-        { name: "Sales & Marketing", url: "#" },
-        { name: "Travel", url: "#" },
-    ];
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -198,8 +192,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarGroupContent>
                         {projects.map((project) => (
                             <a
-                                key={project.name}
-                                href={project.url}
+                                key={project.id}
+                                href="#"
                                 className={isCollapsed ? "flex items-center justify-center w-12 h-12 rounded-md hover:bg-muted transition-colors font-medium" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
                             >
                                 <File size={20} />
@@ -211,7 +205,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarContent>
             <SidebarFooter>
                 <div className={isCollapsed ? "flex justify-center items-center w-full pb-4" : undefined}>
-                    <NavUser user={data.user} />
+                    <NavUser user={user} />
                 </div>
             </SidebarFooter>
             <SidebarRail />

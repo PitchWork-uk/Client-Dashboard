@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { fetchTasksFromNotion, TaskRow } from "@/lib/notion";
+import { fetchTasksFromNotion, TaskRow, fetchClientByEmail, fetchProjectsForClient } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
 
 import { AppSidebar } from "@/components/app-sidebar"
@@ -23,6 +23,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, File, User, Calendar } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { NavUser } from "@/components/nav-user";
 
 export default async function Page() {
     const cookieStore = await cookies();
@@ -30,6 +31,12 @@ export default async function Page() {
     if (!auth || !auth.value) {
         redirect("/");
     }
+    const email = auth.value;
+    const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
+    const client = await fetchClientByEmail(clientDatabaseId, email);
+    const clientName = client?.properties?.Name?.title?.[0]?.plain_text || "Client";
+    const clientType = client?.properties?.Type?.status?.name || "";
+
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [
@@ -103,9 +110,11 @@ export default async function Page() {
             },
         },
     ];
+    const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
+    const projects = await fetchProjectsForClient(projectsDatabaseId, clientName);
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={{ name: clientName, email, type: clientType }} projects={projects} />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
