@@ -13,6 +13,7 @@ import {
     Settings2,
     SquareTerminal,
     File,
+    Home,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -179,12 +180,22 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                 </div>
             </SidebarHeader>
             <SidebarContent>
-                <nav className={isCollapsed ? "flex flex-col items-center gap-2 mt-4" : "flex flex-col gap-2 mt-4"}>
-                    <a href="#" className={isCollapsed ? "flex items-center justify-center w-12 h-12 rounded-md hover:bg-muted transition-colors font-medium" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}>
-                        <File size={20} />
-                        {!isCollapsed && <span>Files</span>}
-                    </a>
-                </nav>
+                {/* General section */}
+                <SidebarGroup className="mt-4">
+                    <SidebarGroupLabel className={isCollapsed ? "justify-center" : undefined}>
+                        {!isCollapsed && "General"}
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <a
+                            href="/dashboard"
+                            className={isCollapsed ? "flex  items-center justify-center  rounded-md hover:bg-muted transition-colors font-medium p-1" : "flex items-center  gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
+                        >
+                            <Home size={20} />
+                            {!isCollapsed && <span>Home</span>}
+                        </a>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+                {/* Projects section */}
                 <SidebarGroup className="mt-6">
                     <SidebarGroupLabel className={isCollapsed ? "justify-center" : undefined}>
                         {!isCollapsed && "Projects"}
@@ -194,7 +205,7 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                             <a
                                 key={project.id}
                                 href="#"
-                                className={isCollapsed ? "flex items-center justify-center w-12 h-12 rounded-md hover:bg-muted transition-colors font-medium" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
+                                className={isCollapsed ? "flex items-center justify-center  rounded-md hover:bg-muted transition-colors font-medium p-1" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
                             >
                                 <File size={20} />
                                 {!isCollapsed && <span>{project.name}</span>}
