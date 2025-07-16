@@ -50,4 +50,28 @@ export async function fetchTasksFromNotion(databaseId: string): Promise<TaskRow[
                 : "",
         };
     });
+}
+
+// Fetch a client by client id and password from Notion
+export async function fetchClientByIdAndPassword(databaseId: string, clientId: string, password: string) {
+    const response = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+            and: [
+                {
+                    property: "Client ID",
+                    unique_id: {
+                        equals: Number(clientId),
+                    },
+                },
+                {
+                    property: "Password",
+                    number: {
+                        equals: Number(password),
+                    },
+                },
+            ],
+        },
+    });
+    return response.results[0] || null;
 } 

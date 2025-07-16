@@ -23,7 +23,7 @@ import { Plus, File, User, Calendar } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default async function Page() {
-    const databaseId = process.env.NOTION_DATABASE_ID!;
+    const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [
         { accessorKey: "id", header: "ID" },
