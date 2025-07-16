@@ -74,4 +74,27 @@ export async function fetchClientByIdAndPassword(databaseId: string, clientId: s
         },
     });
     return response.results[0] || null;
+}
+
+export async function fetchClientByUsernameAndPassword(databaseId: string, username: string, password: string) {
+    const response = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+            and: [
+                {
+                    property: "Username",
+                    rich_text: {
+                        equals: username,
+                    },
+                },
+                {
+                    property: "Password",
+                    number: {
+                        equals: Number(password),
+                    },
+                },
+            ],
+        },
+    });
+    return response.results[0] || null;
 } 

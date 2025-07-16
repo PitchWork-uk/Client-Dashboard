@@ -27,7 +27,7 @@ import { ColumnDef } from "@tanstack/react-table";
 export default async function Page() {
     const cookieStore = await cookies();
     const auth = cookieStore.get("auth");
-    if (!auth || auth.value !== "1") {
+    if (!auth || !auth.value) {
         redirect("/");
     }
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
