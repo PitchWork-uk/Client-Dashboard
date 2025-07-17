@@ -111,4 +111,35 @@ export async function fetchProjectsForClient(databaseId: string, clientEmail: st
         name: page.properties?.Title?.title?.[0]?.plain_text || "",
         // Add more fields as needed
     }));
+}
+
+export async function fetchTasksForProject(databaseId: string, projectName: string) {
+    const response = await notion.databases.query({
+        database_id: databaseId,
+        // filter: {
+        //     property: "Project",
+        //     rich_text: {
+        //         equals: projectName,
+        //     },
+        // },
+    });
+    return response.results.map((page: any) => {
+        return {
+            id:
+                page.properties["ID"]?.unique_id
+                    ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+                    : "",
+            title: page.properties["Title"]?.title?.[0]?.plain_text || "",
+            project: page.properties["Project"]?.rich_text?.[0]?.plain_text || "",
+            type: page.properties["Type"]?.select?.name || "",
+            typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
+            priority: page.properties["Priority"]?.select?.name || "",
+            priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
+            status: page.properties["Status"]?.status?.name || "",
+            statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
+            date: page.properties["date"]?.date
+                ? `${page.properties["date"].date.start} → ${page.properties["date"].date.end || ""}`
+                : "",
+        };
+    });
 } 

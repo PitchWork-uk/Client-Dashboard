@@ -204,7 +204,7 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                         {projects.map((project) => (
                             <a
                                 key={project.id}
-                                href="#"
+                                href={`/dashboard/project/${project.id}`}
                                 className={isCollapsed ? "flex items-center justify-center  rounded-md hover:bg-muted transition-colors font-medium p-1" : "flex items-center gap-3 px-4 py-2 rounded-md hover:bg-muted transition-colors font-medium"}
                             >
                                 <File size={20} />

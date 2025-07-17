@@ -1,42 +1,38 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { fetchTasksFromNotion, TaskRow, fetchClientByEmail, fetchProjectsForClient } from "@/lib/notion";
+import { fetchTasksFromNotion } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
-
-import { AppSidebar } from "@/components/app-sidebar"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { File, Calendar } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { TaskRow } from "@/lib/notion";
 import {
     Breadcrumb,
+    BreadcrumbList,
     BreadcrumbItem,
     BreadcrumbLink,
-    BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, File, User, Calendar } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
-import { NavUser } from "@/components/nav-user";
+} from "@/components/ui/breadcrumb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-export default async function Page() {
-    const cookieStore = await cookies();
-    const auth = cookieStore.get("auth");
-    if (!auth || !auth.value) {
-        redirect("/");
-    }
-    const email = auth.value;
-    const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
-    const client = await fetchClientByEmail(clientDatabaseId, email);
-    const clientName = client?.properties?.Name?.title?.[0]?.plain_text || "Client";
-    const clientType = client?.properties?.Type?.status?.name || "";
+function DashboardBreadcrumb() {
+    return (
+        <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem>
+                    <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                    <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                </BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>
+    );
+}
+DashboardBreadcrumb.displayName = 'DashboardBreadcrumb';
 
+export default async function DashboardPage() {
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [
@@ -110,63 +106,63 @@ export default async function Page() {
             },
         },
     ];
-    const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
-    const projects = await fetchProjectsForClient(projectsDatabaseId, clientName);
+    // Cards and table content
     return (
-        <SidebarProvider>
-            <AppSidebar user={{ name: clientName, email, type: clientType }} projects={projects} />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4">
-                    <SidebarTrigger className="-ml-1" />
-                    <span className="text-lg font-semibold ml-2">Dashboard</span>
-                </header>
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-8">
-                    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                        <Card>
-                            <CardHeader>
-                                <CardDescription>Ongoing Projects</CardDescription>
-                                <CardTitle className="text-2xl font-semibold tabular-nums">{projects.length.toString().padStart(2, "0")}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-muted-foreground text-sm">
-                                    {projects.length === 0
-                                        ? "No ongoing projects at the moment"
-                                        : `${projects.length} ongoing project${projects.length > 1 ? "s" : ""}`}
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardDescription>Ongoing Tasks</CardDescription>
-                                <CardTitle className="text-2xl font-semibold tabular-nums">
-                                    {data.length.toString().padStart(2, "0")}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-muted-foreground text-sm">
-                                    {data.length === 0
-                                        ? "No ongoing tasks at the moment"
-                                        : `${data.length} ongoing task${data.length > 1 ? "s" : ""}`}
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardDescription>Delivered Tasks</CardDescription>
-                                <CardTitle className="text-2xl font-semibold tabular-nums">00</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-muted-foreground text-sm">No delivered tasks yet</div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <div className="mt-8 w-full">
-                        <h2 className="text-xl font-semibold mb-4">Tasks</h2>
-                        <DashboardTable data={data} />
-                    </div>
-                    <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+        <>
+            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
+                <SidebarTrigger className="-ml-1" />
+                <div className="ml-2">
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                 </div>
-            </SidebarInset>
-        </SidebarProvider>
-    )
+            </header>
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Ongoing Projects</CardDescription>
+                        <CardTitle className="text-2xl font-semibold tabular-nums">--</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-muted-foreground text-sm">
+                            {/* You can fetch and display project count here if needed */}
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Ongoing Tasks</CardDescription>
+                        <CardTitle className="text-2xl font-semibold tabular-nums">
+                            {data.length.toString().padStart(2, "0")}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-muted-foreground text-sm">
+                            {data.length === 0
+                                ? "No ongoing tasks at the moment"
+                                : `${data.length} ongoing task${data.length > 1 ? "s" : ""}`}
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Delivered Tasks</CardDescription>
+                        <CardTitle className="text-2xl font-semibold tabular-nums">00</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-muted-foreground text-sm">No delivered tasks yet</div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="mt-8 w-full">
+                <h2 className="text-xl font-semibold mb-4">Tasks</h2>
+                <DashboardTable data={data} />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+        </>
+    );
 }
