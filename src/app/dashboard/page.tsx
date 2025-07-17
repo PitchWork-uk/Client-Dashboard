@@ -1,4 +1,5 @@
-import { fetchTasksFromNotion } from "@/lib/notion";
+import { cookies } from "next/headers";
+import { fetchTasksFromNotion, fetchProjectsForClient, fetchClientByEmail } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,20 @@ function DashboardBreadcrumb() {
 DashboardBreadcrumb.displayName = 'DashboardBreadcrumb';
 
 export default async function DashboardPage() {
+    const cookieStore = await cookies();
+    const auth = cookieStore.get("auth");
+    if (!auth || !auth.value) {
+        return null;
+    }
+    const email = auth.value;
+    const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
+    const client = await fetchClientByEmail(clientDatabaseId, email);
+    const clientName =
+        client && 'properties' in client && client.properties?.Name?.type === "title"
+            ? (client.properties.Name.title as { plain_text: string }[])[0]?.plain_text
+            : "Client";
+    const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
+    const projects = await fetchProjectsForClient(projectsDatabaseId, clientName);
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const data = await fetchTasksFromNotion(databaseId);
     const columns: ColumnDef<TaskRow>[] = [
@@ -125,11 +140,13 @@ export default async function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardDescription>Ongoing Projects</CardDescription>
-                        <CardTitle className="text-2xl font-semibold tabular-nums">--</CardTitle>
+                        <CardTitle className="text-2xl font-semibold tabular-nums">{projects.length.toString().padStart(2, "0")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-muted-foreground text-sm">
-                            {/* You can fetch and display project count here if needed */}
+                            {projects.length === 0
+                                ? "No ongoing projects at the moment"
+                                : `${projects.length} ongoing project${projects.length > 1 ? "s" : ""}`}
                         </div>
                     </CardContent>
                 </Card>
@@ -162,7 +179,6 @@ export default async function DashboardPage() {
                 <h2 className="text-xl font-semibold mb-4">Tasks</h2>
                 <DashboardTable data={data} />
             </div>
-            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </>
     );
 }

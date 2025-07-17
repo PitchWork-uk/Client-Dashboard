@@ -31,25 +31,27 @@ export type TaskRow = {
 export async function fetchTasksFromNotion(databaseId: string): Promise<TaskRow[]> {
     const response = await notion.databases.query({ database_id: databaseId });
 
-    return response.results.map((page: any) => {
-        return {
-            id:
-                page.properties["ID"]?.unique_id
-                    ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+    return response.results
+        .map((page: any) => {
+            return {
+                id:
+                    page.properties["ID"]?.unique_id
+                        ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+                        : "",
+                title: page.properties["Title"]?.title?.[0]?.plain_text || "",
+                project: page.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
+                type: page.properties["Type"]?.select?.name || "",
+                typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
+                priority: page.properties["Priority"]?.select?.name || "",
+                priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
+                status: page.properties["Status"]?.status?.name || "",
+                statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
+                date: page.properties["Date"]?.date
+                    ? `${page.properties["Date"].date.start} → ${page.properties["Date"].date.end || ""}`
                     : "",
-            title: page.properties["Title"]?.title?.[0]?.plain_text || "",
-            project: page.properties["Project"]?.rich_text?.[0]?.plain_text || "",
-            type: page.properties["Type"]?.select?.name || "",
-            typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
-            priority: page.properties["Priority"]?.select?.name || "",
-            priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
-            status: page.properties["Status"]?.status?.name || "",
-            statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
-            date: page.properties["date"]?.date
-                ? `${page.properties["date"].date.start} → ${page.properties["date"].date.end || ""}`
-                : "",
-        };
-    });
+            };
+        })
+        .filter((task) => task.title && task.title.trim() !== "");
 }
 
 
@@ -105,7 +107,7 @@ export async function fetchProjectsForClient(databaseId: string, clientEmail: st
             },
         },
     });
-    console.log(response.results)
+
     return response.results.map((page: any) => ({
         id: page.id,
         name: page.properties?.Title?.title?.[0]?.plain_text || "",
@@ -123,23 +125,25 @@ export async function fetchTasksForProject(databaseId: string, projectName: stri
         //     },
         // },
     });
-    return response.results.map((page: any) => {
-        return {
-            id:
-                page.properties["ID"]?.unique_id
-                    ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+    return response.results
+        .map((page: any) => {
+            return {
+                id:
+                    page.properties["ID"]?.unique_id
+                        ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+                        : "",
+                title: page.properties["Title"]?.title?.[0]?.plain_text || "",
+                project: page.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
+                type: page.properties["Type"]?.select?.name || "",
+                typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
+                priority: page.properties["Priority"]?.select?.name || "",
+                priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
+                status: page.properties["Status"]?.status?.name || "",
+                statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
+                date: page.properties["Date"]?.date
+                    ? `${page.properties["Date"].date.start} → ${page.properties["Date"].date.end || ""}`
                     : "",
-            title: page.properties["Title"]?.title?.[0]?.plain_text || "",
-            project: page.properties["Project"]?.rich_text?.[0]?.plain_text || "",
-            type: page.properties["Type"]?.select?.name || "",
-            typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
-            priority: page.properties["Priority"]?.select?.name || "",
-            priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
-            status: page.properties["Status"]?.status?.name || "",
-            statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
-            date: page.properties["date"]?.date
-                ? `${page.properties["date"].date.start} → ${page.properties["date"].date.end || ""}`
-                : "",
-        };
-    });
+            };
+        })
+        .filter((task) => task.title && task.title.trim() !== "");
 } 

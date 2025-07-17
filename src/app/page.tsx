@@ -48,7 +48,7 @@ export default function SignInPage() {
         priority
       />
       <h1 className="mb-10 text-neutral-500 font-semibold ">Client dashboard</h1>
-      <Card className="w-full max-w-md shadow-lg border border-gray-200 bg-white text-gray-900">
+      <Card className="mx-auto max-w-md w-full sm:w-[400px] shadow-lg border border-gray-200 bg-white text-gray-900">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Login to your account</CardTitle>
           <p className="text-gray-500 text-sm text-center">
