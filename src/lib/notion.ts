@@ -28,8 +28,17 @@ export type TaskRow = {
     date: string;
 };
 
-export async function fetchTasksFromNotion(databaseId: string): Promise<TaskRow[]> {
-    const response = await notion.databases.query({ database_id: databaseId });
+export async function fetchTasksFromNotion(databaseId: string, projectId?: string): Promise<TaskRow[]> {
+    const query: any = { database_id: databaseId };
+    if (projectId) {
+        query.filter = {
+            property: "Project",
+            relation: {
+                contains: projectId,
+            },
+        };
+    }
+    const response = await notion.databases.query(query);
 
     return response.results
         .map((page: any) => {

@@ -175,10 +175,11 @@ export default async function DashboardPage() {
                     </CardContent>
                 </Card>
             </div>
-            <div className="mt-8 w-full">
+            {/* Removed the task table and section header below */}
+            {/* <div className="mt-8 w-full">
                 <h2 className="text-xl font-semibold mb-4">Tasks</h2>
                 <DashboardTable data={data} />
-            </div>
+            </div> */}
         </>
     );
 }
