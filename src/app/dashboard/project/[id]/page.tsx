@@ -29,8 +29,9 @@ function ProjectBreadcrumb({ projectName }: { projectName: string }) {
 }
 ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
-export default async function ProjectPage(props: { params: { id: string } }) {
-    const { params } = props;
+export default async function ProjectPage({ params }: { params: any }) {
+    const resolvedParams = typeof params.then === "function" ? await params : params;
+    const { id } = resolvedParams;
     const cookieStore = await cookies();
     const auth = cookieStore.get("auth");
     if (!auth || !auth.value) {
@@ -39,12 +40,12 @@ export default async function ProjectPage(props: { params: { id: string } }) {
     const email = auth.value;
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await getProjectsByClientName(projectsDatabaseId, email);
-    const project = projects.find((p) => p.id === params.id);
+    const project = projects.find((p) => p.id === id);
     if (!project) {
         return <div>Project not found</div>;
     }
     const worksDatabaseId = process.env.NOTION_DATABASE_WORKS_ID!;
-    const tasks = await getTasksByProjectId(worksDatabaseId, params.id);
+    const tasks = await getTasksByProjectId(worksDatabaseId, id);
     return (
         <>
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
