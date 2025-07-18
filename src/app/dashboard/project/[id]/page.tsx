@@ -29,9 +29,18 @@ function ProjectBreadcrumb({ projectName }: { projectName: string }) {
 }
 ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
-export default async function ProjectPage({ params }: { params: any }) {
-    const resolvedParams = typeof params.then === "function" ? await params : params;
-    const { id } = resolvedParams;
+type ParamsType = { id: string } | Promise<{ id: string }>;
+function isPromise<T>(value: unknown): value is Promise<T> {
+    return typeof value === 'object' && value !== null && 'then' in value && typeof (value as any).then === 'function';
+}
+export default async function ProjectPage({ params }: { params: ParamsType }) {
+    let id: string;
+    if (isPromise<{ id: string }>(params)) {
+        const resolved = await params;
+        id = resolved.id;
+    } else {
+        id = params.id;
+    }
     const cookieStore = await cookies();
     const auth = cookieStore.get("auth");
     if (!auth || !auth.value) {
