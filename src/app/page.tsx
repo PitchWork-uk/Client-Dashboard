@@ -31,8 +31,10 @@ export default function SignInPage() {
         let data = { message: "Login failed" };
         try {
           data = await res.json();
-        } catch (e) { }
-        setError(data.message || "Login failed");
+        } catch (e) {
+          console.log(e);
+          setError(data.message || "Login failed");
+        }
       }
     });
   }

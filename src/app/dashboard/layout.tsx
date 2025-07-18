@@ -6,7 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React, { ReactNode } from "react";
 
 function hasProperties(obj: unknown): obj is { properties: { [key: string]: unknown } } {
-    return obj && typeof obj === "object" && "properties" in obj;
+    return typeof obj === "object" && obj !== null && "properties" in obj;
 }
 
 export default async function DashboardLayout({

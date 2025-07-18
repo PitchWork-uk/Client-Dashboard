@@ -1,10 +1,7 @@
 import { cookies } from "next/headers";
 import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId } from "@/lib/notion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { File, Calendar } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
-import { TaskRow } from "@/lib/notion";
+
 import {
     Breadcrumb,
     BreadcrumbList,

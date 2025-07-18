@@ -42,25 +42,30 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
     }
     const response = await notion.databases.query(query);
 
-    return (response.results as Array<any>)
+    return (response.results as Array<Record<string, unknown>>)
         .map((page) => {
+            const p = page as {
+                id: string;
+                url?: string;
+                properties: Record<string, any>;
+            };
             return {
                 id:
-                    page.properties["ID"]?.unique_id
-                        ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
+                    p.properties["ID"]?.unique_id
+                        ? `${p.properties["ID"].unique_id.prefix}-${p.properties["ID"].unique_id.number}`
                         : "",
-                title: page.properties["Title"]?.title?.[0]?.plain_text || "",
-                project: page.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
-                type: page.properties["Type"]?.select?.name || "",
-                typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
-                priority: page.properties["Priority"]?.select?.name || "",
-                priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
-                status: page.properties["Status"]?.status?.name || "",
-                statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
-                date: page.properties["Date"]?.date
-                    ? `${page.properties["Date"].date.start} → ${page.properties["Date"].date.end || ""}`
+                title: p.properties["Title"]?.title?.[0]?.plain_text || "",
+                project: p.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
+                type: p.properties["Type"]?.select?.name || "",
+                typeColor: colorPresets[p.properties["Type"]?.select?.color || "default"],
+                priority: p.properties["Priority"]?.select?.name || "",
+                priorityColor: colorPresets[p.properties["Priority"]?.select?.color || "default"],
+                status: p.properties["Status"]?.status?.name || "",
+                statusColor: colorPresets[p.properties["Status"]?.status?.color || "default"],
+                date: p.properties["Date"]?.date
+                    ? `${p.properties["Date"].date.start} → ${p.properties["Date"].date.end || ""}`
                     : "",
-                url: page.url,
+                url: p.url,
             };
         })
         .filter((task) => task.title && task.title.trim() !== "");
@@ -120,11 +125,14 @@ export async function getProjectsByClientName(databaseId: string, clientEmail: s
         },
     });
 
-    return response.results.map((page: any) => ({
-        id: page.id,
-        name: page.properties?.Title?.title?.[0]?.plain_text || "",
-        // Add more fields as needed
-    }));
+    return (response.results as Array<Record<string, unknown>>).map((page) => {
+        const p = page as any;
+        return {
+            id: p.id,
+            name: p.properties?.Title?.title?.[0]?.plain_text || "",
+            // Add more fields as needed
+        };
+    });
 }
 
 export async function getTaskCountsByClientId(databaseId: string, clientId: string) {
