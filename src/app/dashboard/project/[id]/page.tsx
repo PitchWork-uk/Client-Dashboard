@@ -37,7 +37,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
     const email = auth.value;
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await getProjectsByClientName(projectsDatabaseId, email);
-    const project = projects.find((p: any) => p.id === params.id);
+    const project = projects.find((p) => p.id === params.id);
     if (!project) {
         return <div>Project not found</div>;
     }

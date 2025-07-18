@@ -13,10 +13,10 @@ export default function SignInPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError("");
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     startTransition(async () => {

@@ -1,4 +1,5 @@
 import { Client } from "@notionhq/client";
+import type { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -30,7 +31,7 @@ export type TaskRow = {
 };
 
 export async function getTasksByProjectId(databaseId: string, projectId?: string): Promise<TaskRow[]> {
-    const query: any = { database_id: databaseId };
+    const query: QueryDatabaseParameters = { database_id: databaseId };
     if (projectId) {
         query.filter = {
             property: "Project",
@@ -41,8 +42,8 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
     }
     const response = await notion.databases.query(query);
 
-    return response.results
-        .map((page: any) => {
+    return (response.results as Array<any>)
+        .map((page) => {
             return {
                 id:
                     page.properties["ID"]?.unique_id

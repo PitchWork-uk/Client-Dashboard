@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React, { ReactNode } from "react";
 
-function hasProperties(obj: any): obj is { properties: any } {
+function hasProperties(obj: unknown): obj is { properties: { [key: string]: unknown } } {
     return obj && typeof obj === "object" && "properties" in obj;
 }
 
@@ -36,9 +36,6 @@ export default async function DashboardLayout({
             : "";
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await getProjectsByClientName(projectsDatabaseId, clientName);
-    // Convert children to array for safe access
-    const childrenArray = React.Children.toArray(children);
-    const hasBreadcrumb = childrenArray.length > 0 && (childrenArray[0] as any)?.type?.displayName === 'DashboardBreadcrumb';
     return (
         <SidebarProvider>
             <AppSidebar user={{ name: clientName, email, type: clientType }} projects={projects} />
