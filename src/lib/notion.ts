@@ -47,23 +47,23 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
             const p = page as {
                 id: string;
                 url?: string;
-                properties: Record<string, any>;
+                properties: Record<string, unknown>;
             };
             return {
                 id:
-                    p.properties["ID"]?.unique_id
-                        ? `${p.properties["ID"].unique_id.prefix}-${p.properties["ID"].unique_id.number}`
+                    (p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } })?.unique_id
+                        ? `${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.prefix}-${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.number}`
                         : "",
-                title: p.properties["Title"]?.title?.[0]?.plain_text || "",
-                project: p.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
-                type: p.properties["Type"]?.select?.name || "",
-                typeColor: colorPresets[p.properties["Type"]?.select?.color || "default"],
-                priority: p.properties["Priority"]?.select?.name || "",
-                priorityColor: colorPresets[p.properties["Priority"]?.select?.color || "default"],
-                status: p.properties["Status"]?.status?.name || "",
-                statusColor: colorPresets[p.properties["Status"]?.status?.color || "default"],
-                date: p.properties["Date"]?.date
-                    ? `${p.properties["Date"].date.start} → ${p.properties["Date"].date.end || ""}`
+                title: ((p.properties["Title"] as { title?: Array<{ plain_text?: string }> })?.title?.[0]?.plain_text) || "",
+                project: ((p.properties["Project Name"] as { rollup?: { array?: Array<{ title?: Array<{ plain_text?: string }> }> } })?.rollup?.array?.[0]?.title?.[0]?.plain_text) || "",
+                type: ((p.properties["Type"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
+                typeColor: colorPresets[((p.properties["Type"] as { select?: { color?: string } })?.select?.color) || "default"],
+                priority: ((p.properties["Priority"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
+                priorityColor: colorPresets[((p.properties["Priority"] as { select?: { color?: string } })?.select?.color) || "default"],
+                status: ((p.properties["Status"] as { status?: { name?: string; color?: string } })?.status?.name) || "",
+                statusColor: colorPresets[((p.properties["Status"] as { status?: { color?: string } })?.status?.color) || "default"],
+                date: ((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)
+                    ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
             };
@@ -126,10 +126,13 @@ export async function getProjectsByClientName(databaseId: string, clientEmail: s
     });
 
     return (response.results as Array<Record<string, unknown>>).map((page) => {
-        const p = page as any;
+        const p = page as {
+            id: string;
+            properties: Record<string, unknown>;
+        };
         return {
             id: p.id,
-            name: p.properties?.Title?.title?.[0]?.plain_text || "",
+            name: (p.properties?.Title as any)?.title?.[0]?.plain_text || "",
             // Add more fields as needed
         };
     });
