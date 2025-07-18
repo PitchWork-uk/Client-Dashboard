@@ -31,7 +31,7 @@ ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
 type ParamsType = { id: string } | Promise<{ id: string }>;
 function isPromise<T>(value: unknown): value is Promise<T> {
-    return typeof value === 'object' && value !== null && 'then' in value && typeof (value as any).then === 'function';
+    return typeof value === 'object' && value !== null && 'then' in value && typeof (value as { then: unknown }).then === 'function';
 }
 export default async function ProjectPage({ params }: { params: ParamsType }) {
     let id: string;
