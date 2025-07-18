@@ -132,7 +132,7 @@ export async function getProjectsByClientName(databaseId: string, clientEmail: s
         };
         return {
             id: p.id,
-            name: (p.properties?.Title as any)?.title?.[0]?.plain_text || "",
+            name: (p.properties?.Title as { title?: Array<{ plain_text?: string }> })?.title?.[0]?.plain_text || "",
             // Add more fields as needed
         };
     });
