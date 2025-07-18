@@ -10,6 +10,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import * as React from "react";
 
 function ProjectBreadcrumb({ projectName }: { projectName: string }) {
     return (
@@ -28,7 +29,8 @@ function ProjectBreadcrumb({ projectName }: { projectName: string }) {
 }
 ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
-export default async function ProjectPage({ params }: { params: { id: string } }) {
+export default async function ProjectPage(props: { params: { id: string } }): Promise<React.ReactElement | null> {
+    const { params } = props;
     const cookieStore = await cookies();
     const auth = cookieStore.get("auth");
     if (!auth || !auth.value) {
