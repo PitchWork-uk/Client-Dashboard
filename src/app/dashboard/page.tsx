@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
-import { fetchTasksFromNotion, fetchProjectsForClient, fetchClientByEmail, getClientTaskCounts } from "@/lib/notion";
-import { DashboardTable } from "@/components/dashboard-table";
+import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId } from "@/lib/notion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { File, Calendar } from "lucide-react";
@@ -41,18 +40,18 @@ export default async function DashboardPage() {
     }
     const email = auth.value;
     const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
-    const client = await fetchClientByEmail(clientDatabaseId, email);
+    const client = await getClientByEmail(clientDatabaseId, email);
     const clientName =
         client && 'properties' in client && client.properties?.Name?.type === "title"
             ? (client.properties.Name.title as { plain_text: string }[])[0]?.plain_text
             : "Client";
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
-    const projects = await fetchProjectsForClient(projectsDatabaseId, clientName);
+    const projects = await getProjectsByClientName(projectsDatabaseId, clientName);
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     let ongoingCount = 0;
     let completedCount = 0;
     if (client?.id) {
-        const counts = await getClientTaskCounts(databaseId, client.id);
+        const counts = await getTaskCountsByClientId(databaseId, client.id);
         ongoingCount = counts.ongoing;
         completedCount = counts.completed;
     }

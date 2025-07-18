@@ -132,6 +132,26 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 </Badge>
             ),
         },
+        // Add a column for the View button
+        {
+            id: "view",
+            header: "",
+            cell: ({ row }) => (
+                <div className="flex justify-end">
+                    {row.original.url && (
+                        <a
+                            href={row.original.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white  transition-colors"
+                        >
+                            View
+                        </a>
+                    )}
+                </div>
+            ),
+            enableSorting: false,
+        },
     ];
 
     const table = useReactTable({

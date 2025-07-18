@@ -1,4 +1,4 @@
-import { fetchProjectsForClient, fetchTasksForProject, fetchTasksFromNotion } from "@/lib/notion";
+import { getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
 import { cookies } from "next/headers";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -36,13 +36,13 @@ export default async function ProjectPage({ params }: { params: { id: string } }
     }
     const email = auth.value;
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
-    const projects = await fetchProjectsForClient(projectsDatabaseId, email);
+    const projects = await getProjectsByClientName(projectsDatabaseId, email);
     const project = projects.find((p: any) => p.id === params.id);
     if (!project) {
         return <div>Project not found</div>;
     }
     const worksDatabaseId = process.env.NOTION_DATABASE_WORKS_ID!;
-    const tasks = await fetchTasksFromNotion(worksDatabaseId, params.id);
+    const tasks = await getTasksByProjectId(worksDatabaseId, params.id);
     return (
         <>
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">

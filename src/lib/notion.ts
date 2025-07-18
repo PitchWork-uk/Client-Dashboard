@@ -26,9 +26,10 @@ export type TaskRow = {
     status: string;
     statusColor: string;
     date: string;
+    url?: string;
 };
 
-export async function fetchTasksFromNotion(databaseId: string, projectId?: string): Promise<TaskRow[]> {
+export async function getTasksByProjectId(databaseId: string, projectId?: string): Promise<TaskRow[]> {
     const query: any = { database_id: databaseId };
     if (projectId) {
         query.filter = {
@@ -58,13 +59,14 @@ export async function fetchTasksFromNotion(databaseId: string, projectId?: strin
                 date: page.properties["Date"]?.date
                     ? `${page.properties["Date"].date.start} → ${page.properties["Date"].date.end || ""}`
                     : "",
+                url: page.url,
             };
         })
         .filter((task) => task.title && task.title.trim() !== "");
 }
 
 
-export async function fetchClientByEmailAndPassword(databaseId: string, email: string, password: string) {
+export async function getClientByEmailAndPassword(databaseId: string, email: string, password: string) {
     const response = await notion.databases.query({
         database_id: databaseId,
         filter: {
@@ -87,7 +89,7 @@ export async function fetchClientByEmailAndPassword(databaseId: string, email: s
     return response.results[0] || null;
 }
 
-export async function fetchClientByEmail(databaseId: string, email: string) {
+export async function getClientByEmail(databaseId: string, email: string) {
     const response = await notion.databases.query({
         database_id: databaseId,
         filter: {
@@ -100,7 +102,7 @@ export async function fetchClientByEmail(databaseId: string, email: string) {
     return response.results[0] || null;
 }
 
-export async function fetchProjectsForClient(databaseId: string, clientEmail: string) {
+export async function getProjectsByClientName(databaseId: string, clientEmail: string) {
     const response = await notion.databases.query({
         database_id: databaseId,
 
@@ -124,40 +126,7 @@ export async function fetchProjectsForClient(databaseId: string, clientEmail: st
     }));
 }
 
-export async function fetchTasksForProject(databaseId: string, projectName: string) {
-    const response = await notion.databases.query({
-        database_id: databaseId,
-        // filter: {
-        //     property: "Project",
-        //     rich_text: {
-        //         equals: projectName,
-        //     },
-        // },
-    });
-    return response.results
-        .map((page: any) => {
-            return {
-                id:
-                    page.properties["ID"]?.unique_id
-                        ? `${page.properties["ID"].unique_id.prefix}-${page.properties["ID"].unique_id.number}`
-                        : "",
-                title: page.properties["Title"]?.title?.[0]?.plain_text || "",
-                project: page.properties["Project Name"]?.rollup?.array?.[0]?.title?.[0]?.plain_text || "",
-                type: page.properties["Type"]?.select?.name || "",
-                typeColor: colorPresets[page.properties["Type"]?.select?.color || "default"],
-                priority: page.properties["Priority"]?.select?.name || "",
-                priorityColor: colorPresets[page.properties["Priority"]?.select?.color || "default"],
-                status: page.properties["Status"]?.status?.name || "",
-                statusColor: colorPresets[page.properties["Status"]?.status?.color || "default"],
-                date: page.properties["Date"]?.date
-                    ? `${page.properties["Date"].date.start} → ${page.properties["Date"].date.end || ""}`
-                    : "",
-            };
-        })
-        .filter((task) => task.title && task.title.trim() !== "");
-}
-
-export async function getClientTaskCounts(databaseId: string, clientId: string) {
+export async function getTaskCountsByClientId(databaseId: string, clientId: string) {
     // Ongoing tasks: status is not 'Completed' or 'Delivered'
     const ongoingRes = await notion.databases.query({
         database_id: databaseId,

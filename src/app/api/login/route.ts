@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchClientByEmailAndPassword } from "@/lib/notion";
+import { getClientByEmailAndPassword } from "@/lib/notion";
 
 export async function POST(req: NextRequest) {
     try {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         if (!databaseId) {
             return NextResponse.json({ message: "Server misconfiguration" }, { status: 500 });
         }
-        const client = await fetchClientByEmailAndPassword(databaseId, email, password);
+        const client = await getClientByEmailAndPassword(databaseId, email, password);
         if (client) {
             const res = NextResponse.json({ message: "Login successful" });
             res.cookies.set("auth", email, { httpOnly: true, path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production" });
