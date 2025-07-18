@@ -29,7 +29,7 @@ function ProjectBreadcrumb({ projectName }: { projectName: string }) {
 }
 ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
-export default async function ProjectPage(props: { params: { id: string } }): Promise<React.ReactElement | null> {
+export default async function ProjectPage(props: { params: { id: string } }) {
     const { params } = props;
     const cookieStore = await cookies();
     const auth = cookieStore.get("auth");
