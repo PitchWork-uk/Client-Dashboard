@@ -155,4 +155,73 @@ export async function fetchTasksForProject(databaseId: string, projectName: stri
             };
         })
         .filter((task) => task.title && task.title.trim() !== "");
+}
+
+export async function getClientTaskCounts(databaseId: string, clientId: string) {
+    // Ongoing tasks: status is not 'Completed' or 'Delivered'
+    const ongoingRes = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+            and: [
+                {
+                    property: "Client",
+                    rollup: {
+                        any: {
+                            relation: {
+                                contains: clientId,
+                            },
+                        },
+                    },
+                },
+                {
+                    property: "Status",
+                    status: {
+                        does_not_equal: "Completed"
+                    },
+                },
+                {
+                    property: "Status",
+                    status: {
+                        does_not_equal: "Cancelled"
+                    },
+                },
+                {
+                    property: "Status",
+                    status: {
+                        does_not_equal: "Rejected"
+                    },
+                },
+                {
+                    property: "Status",
+                    status: {
+                        does_not_equal: "Archived"
+                    },
+                },
+            ],
+        },
+    });
+    // Completed tasks: status is 'Completed' or 'Delivered'
+    const completedRes = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+            and: [
+                {
+                    property: "Client",
+                    rollup: {
+                        any: {
+                            relation: {
+                                contains: clientId,
+                            },
+                        },
+                    },
+                },
+                { property: "Status", status: { equals: "Completed" } },
+
+            ],
+        },
+    });
+    return {
+        ongoing: ongoingRes.results.length,
+        completed: completedRes.results.length,
+    };
 } 

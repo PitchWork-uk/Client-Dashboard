@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { fetchTasksFromNotion, fetchProjectsForClient, fetchClientByEmail } from "@/lib/notion";
+import { fetchTasksFromNotion, fetchProjectsForClient, fetchClientByEmail, getClientTaskCounts } from "@/lib/notion";
 import { DashboardTable } from "@/components/dashboard-table";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +49,13 @@ export default async function DashboardPage() {
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await fetchProjectsForClient(projectsDatabaseId, clientName);
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
-    const data = await fetchTasksFromNotion(databaseId);
+    let ongoingCount = 0;
+    let completedCount = 0;
+    if (client?.id) {
+        const counts = await getClientTaskCounts(databaseId, client.id);
+        ongoingCount = counts.ongoing;
+        completedCount = counts.completed;
+    }
     const columns: ColumnDef<TaskRow>[] = [
         { accessorKey: "id", header: "ID" },
         {
@@ -154,24 +160,28 @@ export default async function DashboardPage() {
                     <CardHeader>
                         <CardDescription>Ongoing Tasks</CardDescription>
                         <CardTitle className="text-2xl font-semibold tabular-nums">
-                            {data.length.toString().padStart(2, "0")}
+                            {ongoingCount.toString().padStart(2, "0")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-muted-foreground text-sm">
-                            {data.length === 0
+                            {ongoingCount === 0
                                 ? "No ongoing tasks at the moment"
-                                : `${data.length} ongoing task${data.length > 1 ? "s" : ""}`}
+                                : `${ongoingCount} ongoing task${ongoingCount > 1 ? "s" : ""}`}
                         </div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardDescription>Delivered Tasks</CardDescription>
-                        <CardTitle className="text-2xl font-semibold tabular-nums">00</CardTitle>
+                        <CardTitle className="text-2xl font-semibold tabular-nums">{completedCount.toString().padStart(2, "0")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-muted-foreground text-sm">No delivered tasks yet</div>
+                        <div className="text-muted-foreground text-sm">
+                            {completedCount === 0
+                                ? "No delivered tasks yet"
+                                : `${completedCount} delivered task${completedCount > 1 ? "s" : ""}`}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
