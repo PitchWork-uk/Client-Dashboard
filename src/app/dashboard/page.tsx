@@ -36,14 +36,15 @@ export default async function DashboardPage() {
         return null;
     }
     const email = auth.value;
+    console.log(email)
     const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
     const client = await getClientByEmail(clientDatabaseId, email);
-    const clientName =
-        client && 'properties' in client && client.properties?.Name?.type === "title"
-            ? (client.properties.Name.title as { plain_text: string }[])[0]?.plain_text
-            : "Client";
+    // const clientName =
+    //     client && 'properties' in client && client.properties?.Name?.type === "title"
+    //         ? (client.properties.Name.title as { plain_text: string }[])[0]?.plain_text
+    //         : "Client";
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
-    const projects = await getProjectsByClientName(projectsDatabaseId, clientName);
+    const projects = await getProjectsByClientName(projectsDatabaseId, email);
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     let ongoingCount = 0;
     let completedCount = 0;

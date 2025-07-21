@@ -35,7 +35,7 @@ export default async function DashboardLayout({
             ? (client.properties.Type.status as { name: string }).name
             : "";
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
-    const projects = await getProjectsByClientName(projectsDatabaseId, clientName);
+    const projects = await getProjectsByClientName(projectsDatabaseId, email);
     return (
         <SidebarProvider>
             <AppSidebar user={{ name: clientName, email, type: clientType }} projects={projects} />

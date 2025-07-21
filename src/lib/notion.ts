@@ -125,6 +125,8 @@ export async function getProjectsByClientName(databaseId: string, clientEmail: s
         },
     });
 
+    console.log(response.results)
+
     return (response.results as Array<Record<string, unknown>>).map((page) => {
         const p = page as {
             id: string;
