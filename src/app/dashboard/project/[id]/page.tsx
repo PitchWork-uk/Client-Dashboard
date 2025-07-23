@@ -11,7 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import * as React from "react";
-import { ProjectTasksTabs } from "./project-tasks-tabs";
+import { ProjectTasksTabs } from "@/components/project-tasks-tabs";
 
 function ProjectBreadcrumb({ projectName }: { projectName: string }) {
     return (
@@ -69,7 +69,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     </Breadcrumb>
                 </div>
             </header>
-            <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
+            <h1 className="text-2xl font-bold ">{project.name}</h1>
             {/* Tabs below title */}
             <ProjectTasksTabs tasks={tasks} />
         </>

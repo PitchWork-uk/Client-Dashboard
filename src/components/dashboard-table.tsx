@@ -10,6 +10,7 @@ import {
     getSortedRowModel,
     useReactTable,
     flexRender,
+    Row,
 } from "@tanstack/react-table";
 import { TaskRow } from "@/lib/notion";
 import {
@@ -23,12 +24,14 @@ import {
 
 interface DashboardTableProps {
     data: TaskRow[];
+    hideFilesColumn?: boolean;
+    extraColumns?: ColumnDef<TaskRow>[];
 }
 
-export function DashboardTable({ data }: DashboardTableProps) {
+export function DashboardTable({ data, hideFilesColumn, extraColumns }: DashboardTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns: ColumnDef<TaskRow>[] = [
+    let columns: ColumnDef<TaskRow>[] = [
         {
             accessorKey: "id",
             header: ({ column }) => (
@@ -54,7 +57,7 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 </button>
             ),
             enableSorting: true,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<TaskRow> }) => (
                 <div className="flex items-center gap-2 font-semibold text-black">
                     {row.getValue("title")}
                 </div>
@@ -72,7 +75,7 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 </button>
             ),
             enableSorting: true,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<TaskRow> }) => (
                 <div className="flex items-center gap-2">
                     <File size={16} />
                     {row.getValue("project")}
@@ -100,13 +103,13 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 };
                 return getStartDate(rowA.getValue(columnId)) - getStartDate(rowB.getValue(columnId));
             },
-            cell: ({ row }) => <span>{row.getValue("date")}</span>,
+            cell: ({ row }: { row: Row<TaskRow> }) => <span>{row.getValue("date")}</span>,
         },
         {
             accessorKey: "type",
             header: "Type",
             enableSorting: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<TaskRow> }) => (
                 <Badge variant="outline" className={row.original.typeColor}>
                     {row.getValue("type")}
                 </Badge>
@@ -116,7 +119,7 @@ export function DashboardTable({ data }: DashboardTableProps) {
             accessorKey: "priority",
             header: "Priority",
             enableSorting: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<TaskRow> }) => (
                 <Badge variant="outline" className={row.original.priorityColor}>
                     {row.getValue("priority")}
                 </Badge>
@@ -126,17 +129,17 @@ export function DashboardTable({ data }: DashboardTableProps) {
             accessorKey: "status",
             header: "Status",
             enableSorting: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<TaskRow> }) => (
                 <Badge variant="outline" className={row.original.statusColor}>
                     {row.getValue("status")}
                 </Badge>
             ),
         },
-        // Add a column for the View button
-        {
+        // Files column (conditionally included)
+        ...(!hideFilesColumn ? [{
             id: "view",
             header: "Files",
-            cell: ({ row }) => {
+            cell: ({ row }: { row: Row<TaskRow> }) => {
                 const status = row.original.status;
                 if (status === "Completed" || status === "Client Review") {
                     return (
@@ -155,8 +158,11 @@ export function DashboardTable({ data }: DashboardTableProps) {
                 return null;
             },
             enableSorting: false,
-        },
+        }] : []),
     ];
+    if (extraColumns && extraColumns.length > 0) {
+        columns = [...columns, ...extraColumns];
+    }
 
     const table = useReactTable({
         data,
