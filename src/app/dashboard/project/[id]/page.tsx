@@ -11,6 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import * as React from "react";
+import { ProjectTasksTabs } from "./project-tasks-tabs";
 
 function ProjectBreadcrumb({ projectName }: { projectName: string }) {
     return (
@@ -49,6 +50,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     }
     const worksDatabaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     const tasks = await getTasksByProjectId(worksDatabaseId, id);
+
     return (
         <>
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
@@ -68,7 +70,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </div>
             </header>
             <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
-            <DashboardTable data={tasks} />
+            {/* Tabs below title */}
+            <ProjectTasksTabs tasks={tasks} />
         </>
     );
 } 
