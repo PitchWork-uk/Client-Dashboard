@@ -125,7 +125,6 @@ export async function getProjectsByClientName(databaseId: string, clientEmail: s
         },
     });
 
-    console.log(response.results)
 
     return (response.results as Array<Record<string, unknown>>).map((page) => {
         const p = page as {
@@ -207,4 +206,57 @@ export async function getTaskCountsByClientId(databaseId: string, clientId: stri
         ongoing: ongoingRes.results.length,
         completed: completedRes.results.length,
     };
+}
+
+export async function getTasksByClientIdAndStatus(databaseId: string, clientId: string, status: string): Promise<TaskRow[]> {
+    const response = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+            and: [
+                {
+                    property: "Client",
+                    rollup: {
+                        any: {
+                            relation: {
+                                contains: clientId,
+                            },
+                        },
+                    },
+                },
+                {
+                    property: "Status",
+                    status: {
+                        equals: status,
+                    },
+                },
+            ],
+        },
+    });
+    return (response.results as Array<Record<string, unknown>>)
+        .map((page) => {
+            const p = page as {
+                id: string;
+                url?: string;
+                properties: Record<string, unknown>;
+            };
+            return {
+                id:
+                    (p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } })?.unique_id
+                        ? `${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.prefix}-${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.number}`
+                        : "",
+                title: ((p.properties["Title"] as { title?: Array<{ plain_text?: string }> })?.title?.[0]?.plain_text) || "",
+                project: ((p.properties["Project Name"] as { rollup?: { array?: Array<{ title?: Array<{ plain_text?: string }> }> } })?.rollup?.array?.[0]?.title?.[0]?.plain_text) || "",
+                type: ((p.properties["Type"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
+                typeColor: colorPresets[((p.properties["Type"] as { select?: { color?: string } })?.select?.color) || "default"],
+                priority: ((p.properties["Priority"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
+                priorityColor: colorPresets[((p.properties["Priority"] as { select?: { color?: string } })?.select?.color) || "default"],
+                status: ((p.properties["Status"] as { status?: { name?: string; color?: string } })?.status?.name) || "",
+                statusColor: colorPresets[((p.properties["Status"] as { status?: { color?: string } })?.status?.color) || "default"],
+                date: ((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)
+                    ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
+                    : "",
+                url: p.url,
+            };
+        })
+        .filter((task) => task.title && task.title.trim() !== "");
 } 

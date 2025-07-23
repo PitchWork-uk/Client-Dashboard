@@ -135,21 +135,25 @@ export function DashboardTable({ data }: DashboardTableProps) {
         // Add a column for the View button
         {
             id: "view",
-            header: "",
-            cell: ({ row }) => (
-                <div className="flex justify-end">
-                    {row.original.url && (
-                        <a
-                            href={row.original.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white  transition-colors"
-                        >
-                            View
-                        </a>
-                    )}
-                </div>
-            ),
+            header: "Files",
+            cell: ({ row }) => {
+                const status = row.original.status;
+                if (status === "Completed" || status === "Client Review") {
+                    return (
+                        <div className="flex justify-start">
+                            <button
+                                type="button"
+                                className="flex items-center gap-2 cursor-pointer px-2 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white  transition-colors"
+                                disabled
+                            >
+                                <File size={16} />
+                                View
+                            </button>
+                        </div>
+                    );
+                }
+                return null;
+            },
             enableSorting: false,
         },
     ];

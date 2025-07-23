@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId } from "@/lib/notion";
+import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId, getTasksByClientIdAndStatus, TaskRow } from "@/lib/notion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 import {
@@ -11,6 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { DashboardTable } from "@/components/dashboard-table";
 
 function DashboardBreadcrumb() {
     return (
@@ -48,10 +49,12 @@ export default async function DashboardPage() {
     const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
     let ongoingCount = 0;
     let completedCount = 0;
+    let reviewTasks: TaskRow[] = [];
     if (client?.id) {
         const counts = await getTaskCountsByClientId(databaseId, client.id);
         ongoingCount = counts.ongoing;
         completedCount = counts.completed;
+        reviewTasks = await getTasksByClientIdAndStatus(databaseId, client.id, "Client Review");
     }
     // Cards and table content
     return (
@@ -116,6 +119,12 @@ export default async function DashboardPage() {
                 <h2 className="text-xl font-semibold mb-4">Tasks</h2>
                 <DashboardTable data={data} />
             </div> */}
+            {reviewTasks.length > 0 && (
+                <div className="mt-8 w-full">
+                    <h2 className="text-xl font-semibold mb-4">Waiting for review</h2>
+                    <DashboardTable data={reviewTasks} />
+                </div>
+            )}
         </>
     );
 }
