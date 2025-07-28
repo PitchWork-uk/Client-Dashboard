@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardTable } from "@/components/dashboard-table";
+import { DashboardClient } from "@/components/dashboard-client";
 
 function DashboardBreadcrumb() {
     return (
@@ -118,12 +119,7 @@ export default async function DashboardPage() {
                 <h2 className="text-xl font-semibold mb-4">Tasks</h2>
                 <DashboardTable data={data} />
             </div> */}
-            {reviewTasks.length > 0 && (
-                <div className="mt-8 w-full">
-                    <h2 className="text-xl font-semibold mb-4">Waiting for review</h2>
-                    <DashboardTable data={reviewTasks} />
-                </div>
-            )}
+            <DashboardClient reviewTasks={reviewTasks} databaseId={databaseId} />
         </>
     );
 }

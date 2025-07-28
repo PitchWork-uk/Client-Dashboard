@@ -2,23 +2,11 @@
 import { useState } from "react";
 import { DashboardTable } from "@/components/dashboard-table";
 import type { TaskRow } from "@/lib/notion";
-import { Loader2 } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { ApproveTaskButton } from "./approve-task-button";
 
 export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: TaskRow[], onRefetch?: () => void, databaseId: string }) {
     const [tab, setTab] = useState("ongoing");
     const [localTasks, setLocalTasks] = useState(tasks);
-    const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const [taskToApprove, setTaskToApprove] = useState<TaskRow | null>(null);
 
     const ongoingTasks = localTasks.filter(
         (task) => task.status !== "Client Review" && task.status !== "Completed"
@@ -26,78 +14,29 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: Task
     const reviewTasks = localTasks.filter((task) => task.status === "Client Review");
     const completedTasks = localTasks.filter((task) => task.status === "Completed");
 
-    const handleApproveClick = (task: TaskRow) => {
-        setTaskToApprove(task);
-        setShowConfirmDialog(true);
-    };
-
-    const handleConfirmApprove = async () => {
-        if (!taskToApprove) return;
-
-        setShowConfirmDialog(false);
-        setLoadingTaskId(taskToApprove.id);
-
-        try {
-            const response = await fetch('/api/approve-task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    uniqueIdNumber: taskToApprove.uniqueIdNumber,
-                    databaseId
-                }),
-            });
-
-            if (response.ok) {
-                // Update local state
-                setLocalTasks(prevTasks =>
-                    prevTasks.map(task =>
-                        task.id === taskToApprove.id
-                            ? { ...task, status: "Completed" }
-                            : task
-                    )
-                );
-
-                // Refetch all data if callback provided
-                if (onRefetch) {
-                    onRefetch();
-                }
-            }
-        } catch (error) {
-            console.error('Error approving task:', error);
-        } finally {
-            setLoadingTaskId(null);
-            setTaskToApprove(null);
+    const handleTaskApproved = () => {
+        // Refetch all data if callback provided
+        if (onRefetch) {
+            onRefetch();
+        } else {
+            // Simple refresh for now
+            window.location.reload();
         }
-    };
-
-    const handleCancelApprove = () => {
-        setShowConfirmDialog(false);
-        setTaskToApprove(null);
     };
 
     // Approve column for review tab
     const approveColumn = {
         id: "approve",
-        header: "Approve",
+        header: "Actions",
         cell: ({ row }: { row: any }) => {
             const task = row.original;
-            const isLoading = loadingTaskId === task.id;
-
             return (
-                <button
-                    type="button"
-                    disabled={isLoading}
-                    className="px-3 py-1 text-sm text-white rounded bg-green-600 hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => handleApproveClick(task)}
-                >
-                    {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        "Approve"
-                    )}
-                </button>
+                <ApproveTaskButton
+                    taskId={task.id}
+                    taskTitle={task.title}
+                    databaseId={databaseId}
+                    onApprove={handleTaskApproved}
+                />
             );
         },
         enableSorting: false,
@@ -133,26 +72,6 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: Task
                 {tab === "review" && <DashboardTable data={reviewTasks} extraColumns={[approveColumn]} />}
                 {tab === "completed" && <DashboardTable data={completedTasks} />}
             </div>
-
-            <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Confirm Approval</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to approve task "{taskToApprove?.title}"?
-                            This will mark the task as completed.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={handleCancelApprove}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleConfirmApprove}>
-                            Approve
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </>
     );
 } 

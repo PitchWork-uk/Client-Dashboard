@@ -22,14 +22,18 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { ApproveTaskButton } from "./approve-task-button";
 
 interface DashboardTableProps {
     data: TaskRow[];
     hideFilesColumn?: boolean;
     extraColumns?: ColumnDef<TaskRow>[];
+    showApproveColumn?: boolean;
+    databaseId?: string;
+    onTaskApproved?: () => void;
 }
 
-export function DashboardTable({ data, hideFilesColumn, extraColumns }: DashboardTableProps) {
+export function DashboardTable({ data, hideFilesColumn, extraColumns, showApproveColumn, databaseId, onTaskApproved }: DashboardTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     let columns: ColumnDef<TaskRow>[] = [
@@ -170,6 +174,23 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns }: Dashboar
                     );
                 }
                 return null;
+            },
+            enableSorting: false,
+        }] : []),
+        // Approve column (conditionally included)
+        ...(showApproveColumn ? [{
+            id: "approve",
+            header: "Actions",
+            cell: ({ row }: { row: Row<TaskRow> }) => {
+                if (!databaseId) return null;
+                return (
+                    <ApproveTaskButton
+                        taskId={row.original.id}
+                        taskTitle={row.original.title}
+                        databaseId={databaseId}
+                        onApprove={onTaskApproved}
+                    />
+                );
             },
             enableSorting: false,
         }] : []),
