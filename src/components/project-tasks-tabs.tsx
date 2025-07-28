@@ -32,7 +32,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: Task
             const task = row.original;
             return (
                 <ApproveTaskButton
-                    taskId={task.id}
+                    taskId={task.uniqueIdNumber?.toString() || task.id}
                     taskTitle={task.title}
                     databaseId={databaseId}
                     onApprove={handleTaskApproved}

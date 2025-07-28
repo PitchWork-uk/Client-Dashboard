@@ -42,7 +42,9 @@ export function ApproveTaskButton({ taskId, taskTitle, databaseId, onApprove }: 
                 setIsOpen(false);
                 onApprove?.();
             } else {
-                console.error("Failed to approve task");
+                const errorData = await response.json().catch(() => ({}));
+                console.error("Failed to approve task:", errorData.error || "Unknown error");
+                // You could add a toast notification here for better UX
             }
         } catch (error) {
             console.error("Error approving task:", error);

@@ -9,7 +9,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unique ID number and database ID are required' }, { status: 400 });
         }
 
-        const success = await updateTaskStatusByUniqueId(databaseId, uniqueIdNumber, 'Completed');
+        // Convert to number if it's a string
+        const numericId = typeof uniqueIdNumber === 'string' ? parseInt(uniqueIdNumber, 10) : uniqueIdNumber;
+        
+        if (isNaN(numericId)) {
+            return NextResponse.json({ error: 'Invalid unique ID number format' }, { status: 400 });
+        }
+
+        const success = await updateTaskStatusByUniqueId(databaseId, numericId, 'Completed');
 
         if (success) {
             return NextResponse.json({ success: true });

@@ -185,7 +185,7 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
                 if (!databaseId) return null;
                 return (
                     <ApproveTaskButton
-                        taskId={row.original.id}
+                        taskId={row.original.uniqueIdNumber?.toString() || row.original.id}
                         taskTitle={row.original.title}
                         databaseId={databaseId}
                         onApprove={onTaskApproved}
