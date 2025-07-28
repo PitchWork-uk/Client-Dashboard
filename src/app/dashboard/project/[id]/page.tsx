@@ -71,7 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </header>
             <h1 className="text-2xl font-bold ">{project.name}</h1>
             {/* Tabs below title */}
-            <ProjectTasksTabs tasks={tasks} />
+            <ProjectTasksTabs tasks={tasks} databaseId={worksDatabaseId} />
         </>
     );
 } 

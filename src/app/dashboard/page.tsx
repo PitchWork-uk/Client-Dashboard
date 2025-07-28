@@ -37,7 +37,6 @@ export default async function DashboardPage() {
         return null;
     }
     const email = auth.value;
-    console.log(email)
     const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
     const client = await getClientByEmail(clientDatabaseId, email);
     // const clientName =

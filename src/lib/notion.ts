@@ -18,6 +18,7 @@ const colorPresets: Record<string, string> = {
 
 export type TaskRow = {
     id: string;
+    uniqueIdNumber?: number; // Add this field
     title: string;
     project: string;
     type: string;
@@ -28,6 +29,7 @@ export type TaskRow = {
     statusColor: string;
     date: string;
     url?: string;
+    deliverables?: string[];
 };
 
 export async function getTasksByProjectId(databaseId: string, projectId?: string): Promise<TaskRow[]> {
@@ -54,6 +56,7 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
                     (p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } })?.unique_id
                         ? `${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.prefix}-${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.number}`
                         : "",
+                uniqueIdNumber: (p.properties["ID"] as { unique_id?: { number?: number } })?.unique_id?.number,
                 title: ((p.properties["Title"] as { title?: Array<{ plain_text?: string }> })?.title?.[0]?.plain_text) || "",
                 project: ((p.properties["Project Name"] as { rollup?: { array?: Array<{ title?: Array<{ plain_text?: string }> }> } })?.rollup?.array?.[0]?.title?.[0]?.plain_text) || "",
                 type: ((p.properties["Type"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
@@ -66,6 +69,7 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
                     ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
+                deliverables: ((p.properties["Deliverables"] as { files?: Array<{ file?: { url?: string }; external?: { url?: string } }> })?.files?.map(file => file.file?.url || file.external?.url).filter(url => url !== undefined) as string[]) || [],
             };
         })
         .filter((task) => task.title && task.title.trim() !== "");
@@ -244,6 +248,7 @@ export async function getTasksByClientIdAndStatus(databaseId: string, clientId: 
                     (p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } })?.unique_id
                         ? `${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.prefix}-${(p.properties["ID"] as { unique_id?: { prefix?: string; number?: number } }).unique_id?.number}`
                         : "",
+                uniqueIdNumber: (p.properties["ID"] as { unique_id?: { number?: number } })?.unique_id?.number,
                 title: ((p.properties["Title"] as { title?: Array<{ plain_text?: string }> })?.title?.[0]?.plain_text) || "",
                 project: ((p.properties["Project Name"] as { rollup?: { array?: Array<{ title?: Array<{ plain_text?: string }> }> } })?.rollup?.array?.[0]?.title?.[0]?.plain_text) || "",
                 type: ((p.properties["Type"] as { select?: { name?: string; color?: string } })?.select?.name) || "",
@@ -256,7 +261,66 @@ export async function getTasksByClientIdAndStatus(databaseId: string, clientId: 
                     ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
+                deliverables: ((p.properties["Deliverables"] as { files?: Array<{ file?: { url?: string }; external?: { url?: string } }> })?.files?.map(file => file.file?.url || file.external?.url).filter(url => url !== undefined) as string[]) || [],
             };
         })
         .filter((task) => task.title && task.title.trim() !== "");
+}
+
+export async function updateTaskStatus(taskId: string, newStatus: string) {
+    try {
+        await notion.pages.update({
+            page_id: taskId,
+            properties: {
+                "Status": {
+                    status: {
+                        name: newStatus
+                    }
+                }
+            }
+        });
+        return true;
+    } catch (error) {
+        console.error("Error updating task status:", error);
+        return false;
+    }
+}
+
+export async function updateTaskStatusByUniqueId(databaseId: string, uniqueIdNumber: number, newStatus: string) {
+    try {
+        // First, find the task by unique ID number
+        const response = await notion.databases.query({
+            database_id: databaseId,
+            filter: {
+                property: "ID",
+                unique_id: {
+                    equals: uniqueIdNumber
+                }
+            }
+        });
+
+        if (response.results.length === 0) {
+            console.error("Task not found with unique ID:", uniqueIdNumber);
+            return false;
+        }
+
+        const taskPageId = response.results[0].id;
+
+        // Update the task status using the found page ID
+        await notion.pages.update({
+            page_id: taskPageId,
+            properties: {
+                "Status": {
+                    status: {
+                        name: newStatus
+                    }
+                }
+            }
+        });
+
+        return true;
+    } catch (error) {
+        console.error("Error updating task status by unique ID:", error);
+        return false;
+    }
 } 

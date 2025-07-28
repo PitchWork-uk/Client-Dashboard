@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { File, Calendar } from "lucide-react";
+import { Figma, File as FileIcon, FolderOpen } from "lucide-react";
 import {
     ColumnDef,
     SortingState,
@@ -141,17 +142,30 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns }: Dashboar
             header: "Files",
             cell: ({ row }: { row: Row<TaskRow> }) => {
                 const status = row.original.status;
-                if (status === "Completed" || status === "Client Review") {
+                const deliverables = row.original.deliverables;
+                if ((status === "Completed" || status === "Client Review") && deliverables && deliverables.length > 0) {
                     return (
-                        <div className="flex justify-start">
-                            <button
-                                type="button"
-                                className="flex items-center gap-2 cursor-pointer px-2 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white  transition-colors"
-                                disabled
-                            >
-                                <File size={16} />
-                                View
-                            </button>
+                        <div className="flex gap-2 justify-start">
+                            {deliverables.map((url, idx) => {
+                                let Icon = FileIcon;
+                                if (/figma\.com/.test(url)) {
+                                    Icon = Figma;
+                                } else if (/drive\.google\.com/.test(url)) {
+                                    Icon = FolderOpen;
+                                }
+                                return (
+                                    <a
+                                        key={url + idx}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 cursor-pointer px-2 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white transition-colors"
+                                        title="Open file"
+                                    >
+                                        <Icon size={20} />
+                                    </a>
+                                );
+                            })}
                         </div>
                     );
                 }
