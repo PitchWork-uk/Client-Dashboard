@@ -32,6 +32,14 @@ export type TaskRow = {
     deliverables?: string[];
 };
 
+export type Comment = {
+    id: string;
+    text: string;
+    author: string;
+    timestamp: string;
+    created_time: string;
+};
+
 export async function getTasksByProjectId(databaseId: string, projectId?: string): Promise<TaskRow[]> {
     const query: QueryDatabaseParameters = { database_id: databaseId };
     if (projectId) {
@@ -322,5 +330,102 @@ export async function updateTaskStatusByUniqueId(databaseId: string, uniqueIdNum
     } catch (error) {
         console.error("Error updating task status by unique ID:", error);
         return false;
+    }
+}
+
+export async function getCommentsByTaskId(databaseId: string, uniqueIdNumber: number): Promise<Comment[]> {
+    try {
+        // First, find the task by unique ID number
+        const response = await notion.databases.query({
+            database_id: databaseId,
+            filter: {
+                property: "ID",
+                unique_id: {
+                    equals: uniqueIdNumber
+                }
+            }
+        });
+
+        if (response.results.length === 0) {
+            console.error("Task not found with unique ID:", uniqueIdNumber);
+            return [];
+        }
+
+        const taskPageId = response.results[0].id;
+
+        // Get comments using the found page ID
+        const commentsResponse = await notion.comments.list({
+            block_id: taskPageId,
+        });
+
+        return commentsResponse.results.map((comment) => {
+            const richText = comment.rich_text?.[0]?.plain_text || "";
+            const author = (comment.created_by as any)?.name || "Unknown User";
+            const createdTime = comment.created_time;
+
+            return {
+                id: comment.id,
+                text: richText,
+                author: author,
+                timestamp: new Date(createdTime).toLocaleString(),
+                created_time: createdTime,
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        return [];
+    }
+}
+
+export async function createComment(databaseId: string, uniqueIdNumber: number, commentText: string): Promise<Comment | null> {
+    try {
+        // First, find the task by unique ID number
+        const response = await notion.databases.query({
+            database_id: databaseId,
+            filter: {
+                property: "ID",
+                unique_id: {
+                    equals: uniqueIdNumber
+                }
+            }
+        });
+
+        if (response.results.length === 0) {
+            console.error("Task not found with unique ID:", uniqueIdNumber);
+            return null;
+        }
+
+        const taskPageId = response.results[0].id;
+
+        // Create comment using the found page ID
+        const commentResponse = await notion.comments.create({
+            parent: {
+                page_id: taskPageId,
+            },
+            rich_text: [
+                {
+                    text: {
+                        content: commentText,
+                    },
+                },
+            ],
+        });
+
+        // Since we can't retrieve the comment directly, we'll construct the response
+        // based on the creation response and the input data
+        const richText = commentText;
+        const author = "You"; // In a real app, this would come from user context
+        const createdTime = new Date().toISOString();
+
+        return {
+            id: commentResponse.id,
+            text: richText,
+            author: author,
+            timestamp: new Date(createdTime).toLocaleString(),
+            created_time: createdTime,
+        };
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return null;
     }
 } 
