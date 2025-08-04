@@ -507,7 +507,7 @@ export async function createTask(databaseId: string, taskData: {
             parent: {
                 database_id: databaseId,
             },
-            properties: properties as any,
+            properties: properties as Parameters<typeof notion.pages.create>[0]['properties'],
         });
 
         return { success: true };
