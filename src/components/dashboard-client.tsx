@@ -10,7 +10,7 @@ interface DashboardClientProps {
 }
 
 export function DashboardClient({ reviewTasks: initialReviewTasks, databaseId }: DashboardClientProps) {
-    const [reviewTasks, setReviewTasks] = useState(initialReviewTasks);
+    const [reviewTasks] = useState(initialReviewTasks);
 
     const handleTaskApproved = () => {
         // Remove the approved task from the list

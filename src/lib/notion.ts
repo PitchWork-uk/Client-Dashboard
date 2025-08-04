@@ -366,7 +366,7 @@ export async function getCommentsByTaskId(databaseId: string, uniqueIdNumber: nu
 
         return commentsResponse.results.map((comment) => {
             const richText = comment.rich_text?.[0]?.plain_text || "";
-            const author = (comment.created_by as any)?.name || "Unknown User";
+            const author = (comment.created_by as { name?: string })?.name || "Unknown User";
             const createdTime = comment.created_time;
 
             return {
@@ -444,7 +444,7 @@ export async function createTask(databaseId: string, taskData: {
     priority?: string;
 }): Promise<{ success: boolean; error?: string }> {
     try {
-        const properties: any = {
+        const properties: Record<string, any> = {
             "Dashboard submission": {
                 rich_text: [
                     {
@@ -501,7 +501,7 @@ export async function createTask(databaseId: string, taskData: {
             };
         }
 
-        const response = await notion.pages.create({
+        await notion.pages.create({
             parent: {
                 database_id: databaseId,
             },

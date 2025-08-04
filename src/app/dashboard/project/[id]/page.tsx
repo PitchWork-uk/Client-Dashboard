@@ -1,5 +1,5 @@
 import { getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
-import { DashboardTable } from "@/components/dashboard-table";
+
 import { cookies } from "next/headers";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {

@@ -11,7 +11,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { DashboardTable } from "@/components/dashboard-table";
 import { DashboardClient } from "@/components/dashboard-client";
 
 function DashboardBreadcrumb() {

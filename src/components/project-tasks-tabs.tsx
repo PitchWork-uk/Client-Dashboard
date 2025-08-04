@@ -9,7 +9,7 @@ import { CreateTaskSheet } from "./create-task-sheet";
 
 export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { tasks: TaskRow[], onRefetch?: () => void, databaseId: string, projectId?: string }) {
     const [tab, setTab] = useState("ongoing");
-    const [localTasks, setLocalTasks] = useState(tasks);
+    const [localTasks] = useState(tasks);
     const [isCreateTaskSheetOpen, setIsCreateTaskSheetOpen] = useState(false);
 
     const ongoingTasks = localTasks.filter(
@@ -36,7 +36,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
     const approveColumn = {
         id: "approve",
         header: "Actions",
-        cell: ({ row }: { row: any }) => {
+        cell: ({ row }: { row: { original: TaskRow } }) => {
             const task = row.original;
             return (
                 <ApproveTaskButton
