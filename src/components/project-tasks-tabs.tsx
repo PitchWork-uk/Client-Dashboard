@@ -43,6 +43,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
                     taskId={task.uniqueIdNumber?.toString() || task.id}
                     taskTitle={task.title}
                     databaseId={databaseId}
+                    feedbackUrl={task.feedbackUrl}
                     onApprove={handleTaskApproved}
                 />
             );

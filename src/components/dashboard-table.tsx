@@ -188,6 +188,7 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
                         taskId={row.original.uniqueIdNumber?.toString() || row.original.id}
                         taskTitle={row.original.title}
                         databaseId={databaseId}
+                        feedbackUrl={row.original.feedbackUrl}
                         onApprove={onTaskApproved}
                     />
                 );

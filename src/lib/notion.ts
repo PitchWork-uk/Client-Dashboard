@@ -37,6 +37,7 @@ export type TaskRow = {
     statusColor: string;
     date: string;
     url?: string;
+    feedbackUrl?: string;
     deliverables?: string[];
 };
 
@@ -85,6 +86,7 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
                     ? `${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
+                feedbackUrl: ((p.properties["Feedback"] as { url?: string })?.url) || "",
                 deliverables: ((p.properties["Deliverables"] as { files?: Array<{ file?: { url?: string }; external?: { url?: string } }> })?.files?.map(file => file.file?.url || file.external?.url).filter(url => url !== undefined) as string[]) || [],
             };
         })
@@ -252,6 +254,7 @@ export async function getTasksByClientIdAndStatus(databaseId: string, clientId: 
             ],
         },
     });
+
     return (response.results as Array<Record<string, unknown>>)
         .map((page) => {
             const p = page as {
@@ -274,9 +277,10 @@ export async function getTasksByClientIdAndStatus(databaseId: string, clientId: 
                 status: ((p.properties["Status"] as { status?: { name?: string; color?: string } })?.status?.name) || "",
                 statusColor: colorPresets[((p.properties["Status"] as { status?: { color?: string } })?.status?.color) || "default"],
                 date: ((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)
-                    ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
+                    ? `${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
+                feedbackUrl: ((p.properties["Feedback"] as { url?: string })?.url) || "",
                 deliverables: ((p.properties["Deliverables"] as { files?: Array<{ file?: { url?: string }; external?: { url?: string } }> })?.files?.map(file => file.file?.url || file.external?.url).filter(url => url !== undefined) as string[]) || [],
             };
         })
