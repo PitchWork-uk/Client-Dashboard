@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CreateTaskSheet } from "./create-task-sheet";
 
-export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: TaskRow[], onRefetch?: () => void, databaseId: string }) {
+export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { tasks: TaskRow[], onRefetch?: () => void, databaseId: string, projectId?: string }) {
     const [tab, setTab] = useState("ongoing");
     const [localTasks, setLocalTasks] = useState(tasks);
     const [isCreateTaskSheetOpen, setIsCreateTaskSheetOpen] = useState(false);
@@ -90,7 +90,9 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId }: { tasks: Task
             <CreateTaskSheet
                 isOpen={isCreateTaskSheetOpen}
                 onOpenChange={setIsCreateTaskSheetOpen}
-                projectId={databaseId}
+                projectId={projectId}
+                databaseId={databaseId}
+                onTaskCreated={handleTaskApproved}
             />
         </>
     );

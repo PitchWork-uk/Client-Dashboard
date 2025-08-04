@@ -16,6 +16,12 @@ const colorPresets: Record<string, string> = {
     yellow: "bg-yellow-100 text-yellow-800 border-yellow-200",
 };
 
+// Helper function to format date to YYYY-MM-DD
+const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return "";
+    return new Date(dateString).toISOString().split('T')[0];
+};
+
 export type TaskRow = {
     id: string;
     uniqueIdNumber?: number; // Add this field
@@ -74,7 +80,7 @@ export async function getTasksByProjectId(databaseId: string, projectId?: string
                 status: ((p.properties["Status"] as { status?: { name?: string; color?: string } })?.status?.name) || "",
                 statusColor: colorPresets[((p.properties["Status"] as { status?: { color?: string } })?.status?.color) || "default"],
                 date: ((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)
-                    ? `${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
+                    ? `${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.start)} → ${formatDate((p.properties["Date"] as { date?: { start?: string; end?: string } })?.date?.end || "")}`
                     : "",
                 url: p.url,
                 deliverables: ((p.properties["Deliverables"] as { files?: Array<{ file?: { url?: string }; external?: { url?: string } }> })?.files?.map(file => file.file?.url || file.external?.url).filter(url => url !== undefined) as string[]) || [],
@@ -427,5 +433,84 @@ export async function createComment(databaseId: string, uniqueIdNumber: number, 
     } catch (error) {
         console.error("Error creating comment:", error);
         return null;
+    }
+}
+
+export async function createTask(databaseId: string, taskData: {
+    submittedBy: string;
+    title: string;
+    dateRange: { from: Date; to: Date };
+    projectId?: string;
+    priority?: string;
+}): Promise<{ success: boolean; error?: string }> {
+    try {
+        const properties: any = {
+            "Dashboard submission": {
+                rich_text: [
+                    {
+                        text: {
+                            content: taskData.submittedBy,
+                        },
+                    },
+                ],
+            },
+            "Title": {
+                title: [
+                    {
+                        text: {
+                            content: taskData.title,
+                        },
+                    },
+                ],
+            },
+            "Date": {
+                date: {
+                    start: taskData.dateRange.from.toISOString().split('T')[0],
+                    end: taskData.dateRange.to.toISOString().split('T')[0],
+                },
+            },
+            "Status": {
+                status: {
+                    name: "Waiting for approval",
+                },
+            },
+            "Type": {
+                select: {
+                    name: "Request",
+                },
+            },
+        };
+
+        // Add Priority if provided
+        if (taskData.priority) {
+            properties["Priority"] = {
+                select: {
+                    name: taskData.priority,
+                },
+            };
+        }
+
+        // Add Project relation if projectId is provided
+        if (taskData.projectId) {
+            properties["Project"] = {
+                relation: [
+                    {
+                        id: taskData.projectId,
+                    },
+                ],
+            };
+        }
+
+        const response = await notion.pages.create({
+            parent: {
+                database_id: databaseId,
+            },
+            properties,
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error creating task:", error);
+        return { success: false, error: "Failed to create task" };
     }
 } 
