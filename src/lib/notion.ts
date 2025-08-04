@@ -22,6 +22,8 @@ const formatDate = (dateString: string | undefined): string => {
     return new Date(dateString).toISOString().split('T')[0];
 };
 
+
+
 export type TaskRow = {
     id: string;
     uniqueIdNumber?: number; // Add this field
@@ -444,7 +446,7 @@ export async function createTask(databaseId: string, taskData: {
     priority?: string;
 }): Promise<{ success: boolean; error?: string }> {
     try {
-        const properties: Record<string, any> = {
+        const properties: Record<string, unknown> = {
             "Dashboard submission": {
                 rich_text: [
                     {
@@ -505,7 +507,7 @@ export async function createTask(databaseId: string, taskData: {
             parent: {
                 database_id: databaseId,
             },
-            properties,
+            properties: properties as any,
         });
 
         return { success: true };
