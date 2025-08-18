@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         completedCount = counts.completed;
         reviewTasks = await getTasksByClientIdAndStatus(databaseId, client.id, "Client Review");
     }
-    // Cards and table content
+    // Cards and table contents
     return (
         <>
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
