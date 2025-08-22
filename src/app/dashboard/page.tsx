@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId, getTasksByClientIdAndStatus, TaskRow } from "@/lib/notion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
     Breadcrumb,
     BreadcrumbList,
@@ -15,10 +14,7 @@ import { DashboardClient } from "@/components/dashboard-client";
 import { 
     FolderOpen, 
     Clock, 
-    CheckCircle2, 
-    TrendingUp, 
-    BarChart3,
-
+    CheckCircle2,
 } from "lucide-react";
 
 function DashboardBreadcrumb() {
@@ -88,7 +84,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Ongoing Projects</CardTitle>
@@ -122,7 +118,7 @@ export default async function DashboardPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        <CheckCircle2 className="h-4 w-4 text-orange-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{completedCount}</div>
@@ -133,54 +129,9 @@ export default async function DashboardPage() {
                         </p>
                     </CardContent>
                 </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-orange-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{completionRate.toFixed(1)}%</div>
-                        <p className="text-xs text-muted-foreground">
-                            {totalTasks > 0 ? `${completedCount} of ${totalTasks} tasks` : "No tasks yet"}
-                        </p>
-                    </CardContent>
-                </Card>
             </div>
 
-            {/* Progress Overview */}
-            {totalTasks > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5 text-orange-500" />
-                            Overall Progress
-                        </CardTitle>
-                        <CardDescription>
-                            Task completion progress across all projects
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span>Completion Rate</span>
-                                <span className="font-medium">{completionRate.toFixed(1)}%</span>
-                            </div>
-                            <Progress value={completionRate} className="h-2" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                                <span>Ongoing: {ongoingCount}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                                <span>Completed: {completedCount}</span>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+
 
             {/* Review Tasks Section */}
             <DashboardClient reviewTasks={reviewTasks} databaseId={databaseId} />

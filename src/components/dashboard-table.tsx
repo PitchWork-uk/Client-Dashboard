@@ -229,9 +229,9 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
     });
 
     return (
-        <Card className="py-0">
+        <Card className="py-0 shadow-none border-0">
             <CardContent className="p-0">
-                <div className="rounded-md border">
+                <div className="rounded-md">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
