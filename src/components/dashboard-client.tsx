@@ -53,7 +53,7 @@ export function DashboardClient({ reviewTasks: initialReviewTasks, databaseId }:
                     Tasks that have been completed and are ready for your approval
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent >
                 <DashboardTable
                     data={reviewTasks}
                     showApproveColumn={true}

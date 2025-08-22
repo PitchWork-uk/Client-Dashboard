@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
     File,
     Home,
@@ -45,6 +46,26 @@ import Image from "next/image"
 export function AppSidebar({ user, projects = [], ...props }: { user: { name: string; email: string; type: string }; projects?: { id: string; name: string }[] } & React.ComponentProps<typeof Sidebar>) {
     const { state } = useSidebar();
     const isCollapsed = state === "collapsed";
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("/api/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                router.push("/");
+            } else {
+                console.error("Logout failed");
+            }
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
     
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -202,7 +223,7 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                                 <span>Settings</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout}>
                                 <LogOut className="mr-2 h-4 w-4" />
                                 <span>Log out</span>
                             </DropdownMenuItem>

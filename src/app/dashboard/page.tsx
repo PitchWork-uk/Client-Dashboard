@@ -68,7 +68,7 @@ export default async function DashboardPage() {
     const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
                 <SidebarTrigger className="-ml-1" />

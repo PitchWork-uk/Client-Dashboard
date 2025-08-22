@@ -229,7 +229,7 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
     });
 
     return (
-        <Card>
+        <Card className="py-0">
             <CardContent className="p-0">
                 <div className="rounded-md border">
                     <Table>
