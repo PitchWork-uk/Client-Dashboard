@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { File, Calendar } from "lucide-react";
+import { File, Calendar, ExternalLink, Download } from "lucide-react";
 import { Figma, File as FileIcon, FolderOpen } from "lucide-react";
 import {
     ColumnDef,
@@ -22,6 +22,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApproveTaskButton } from "./approve-task-button";
 
 interface DashboardTableProps {
@@ -40,30 +42,37 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
         {
             accessorKey: "id",
             header: ({ column }) => (
-                <button
-                    className="flex items-center gap-1"
+                <Button
+                    variant="ghost"
+                    className="h-auto p-0 font-medium"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     ID
-                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
-                </button>
+                    {column.getIsSorted() === "asc" ? " ↑" : column.getIsSorted() === "desc" ? " ↓" : ""}
+                </Button>
             ),
             enableSorting: true,
+            cell: ({ row }) => (
+                <span className="font-mono text-sm text-muted-foreground">
+                    #{row.getValue("id")}
+                </span>
+            ),
         },
         {
             accessorKey: "title",
             header: ({ column }) => (
-                <button
-                    className="flex items-center gap-1"
+                <Button
+                    variant="ghost"
+                    className="h-auto p-0 font-medium"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Title
-                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
-                </button>
+                    {column.getIsSorted() === "asc" ? " ↑" : column.getIsSorted() === "desc" ? " ↓" : ""}
+                </Button>
             ),
             enableSorting: true,
             cell: ({ row }: { row: Row<TaskRow> }) => (
-                <div className="flex items-center gap-2 font-semibold text-black">
+                <div className="font-medium">
                     {row.getValue("title")}
                 </div>
             ),
@@ -71,33 +80,35 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
         {
             accessorKey: "project",
             header: ({ column }) => (
-                <button
-                    className="flex items-center gap-1"
+                <Button
+                    variant="ghost"
+                    className="h-auto p-0 font-medium"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Project
-                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
-                </button>
+                    {column.getIsSorted() === "asc" ? " ↑" : column.getIsSorted() === "desc" ? " ↓" : ""}
+                </Button>
             ),
             enableSorting: true,
             cell: ({ row }: { row: Row<TaskRow> }) => (
                 <div className="flex items-center gap-2">
-                    <File size={16} />
-                    {row.getValue("project")}
+                    <File size={16} className="text-muted-foreground" />
+                    <span className="text-sm">{row.getValue("project")}</span>
                 </div>
             ),
         },
         {
             accessorKey: "date",
             header: ({ column }) => (
-                <button
-                    className="flex items-center gap-1"
+                <Button
+                    variant="ghost"
+                    className="h-auto p-0 font-medium"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    <Calendar size={16} />
-                    <span>Date</span>
-                    {column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}
-                </button>
+                    <Calendar size={16} className="mr-1" />
+                    Date
+                    {column.getIsSorted() === "asc" ? " ↑" : column.getIsSorted() === "desc" ? " ↓" : ""}
+                </Button>
             ),
             enableSorting: true,
             sortingFn: (rowA, rowB, columnId) => {
@@ -108,7 +119,9 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
                 };
                 return getStartDate(rowA.getValue(columnId)) - getStartDate(rowB.getValue(columnId));
             },
-            cell: ({ row }: { row: Row<TaskRow> }) => <span>{row.getValue("date")}</span>,
+            cell: ({ row }: { row: Row<TaskRow> }) => (
+                <span className="text-sm text-muted-foreground">{row.getValue("date")}</span>
+            ),
         },
         {
             accessorKey: "type",
@@ -149,7 +162,7 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
                 const deliverables = row.original.deliverables;
                 if ((status === "Completed" || status === "Client Review") && deliverables && deliverables.length > 0) {
                     return (
-                        <div className="flex gap-2 justify-start">
+                        <div className="flex gap-1">
                             {deliverables.map((url, idx) => {
                                 let Icon = FileIcon;
                                 if (/figma\.com/.test(url)) {
@@ -158,22 +171,28 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
                                     Icon = FolderOpen;
                                 }
                                 return (
-                                    <a
+                                    <Button
                                         key={url + idx}
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 cursor-pointer px-2 py-1 text-sm text-black rounded bg-gray-100 hover:bg-green-600 hover:text-white transition-colors"
-                                        title="Open file"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                        asChild
                                     >
-                                        <Icon size={20} />
-                                    </a>
+                                        <a
+                                            href={url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title="Open file"
+                                        >
+                                            <Icon size={16} />
+                                        </a>
+                                    </Button>
                                 );
                             })}
                         </div>
                     );
                 }
-                return null;
+                return <span className="text-muted-foreground text-sm">-</span>;
             },
             enableSorting: false,
         }] : []),
@@ -210,47 +229,55 @@ export function DashboardTable({ data, hideFilesColumn, extraColumns, showApprov
     });
 
     return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                </TableHead>
+        <Card>
+            <CardContent className="p-0">
+                <div className="rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    ))}
+                                </TableRow>
                             ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className="hover:bg-muted/50"
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+                                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                            <FileIcon className="h-8 w-8" />
+                                            <p>No tasks found.</p>
+                                        </div>
                                     </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
     );
 } 

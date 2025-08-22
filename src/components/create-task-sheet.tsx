@@ -21,14 +21,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type DateRange } from "react-day-picker";
-import Calendar30 from "@/components/calendar-30";
-import { Loader2, CheckCircle, XCircle, ChevronDown } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, CheckCircle, XCircle, ChevronDown, CalendarIcon } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface CreateTaskSheetProps {
     isOpen: boolean;
@@ -98,36 +101,38 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                     submittedBy: formData.submittedBy,
                     title: formData.taskTitle,
                     dateRange: {
-                        from: formData.dateRange?.from,
-                        to: formData.dateRange?.to,
+                        from: formData.dateRange?.from?.toISOString(),
+                        to: formData.dateRange?.to?.toISOString(),
                     },
-                    databaseId: databaseId,
-                    projectId: projectId,
                     priority: formData.priority,
+                    projectId: projectId,
+                    databaseId: databaseId,
                 }),
             });
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
+            if (response.ok) {
                 setSubmissionStatus('success');
-                // Call the callback to refresh tasks
-                onTaskCreated?.();
-                // Reset form after a short delay to show success state
                 setTimeout(() => {
+                    handleCloseConfirmation();
+                    onTaskCreated?.();
                     resetForm();
-                    setShowConfirmation(false);
-                    setSubmissionStatus('idle');
                 }, 2000);
             } else {
+                const errorData = await response.json();
+                setErrorMessage(errorData.error || "Failed to create task");
                 setSubmissionStatus('error');
-                setErrorMessage(data.error || "Failed to create task");
             }
         } catch (error) {
             console.error("Error creating task:", error);
+            setErrorMessage("An unexpected error occurred");
             setSubmissionStatus('error');
-            setErrorMessage("Network error occurred");
         }
+    };
+
+    const handleCloseConfirmation = () => {
+        setShowConfirmation(false);
+        setSubmissionStatus('idle');
+        setErrorMessage("");
     };
 
     const handleCancel = () => {
@@ -142,31 +147,23 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
             dateRange: undefined,
             priority: "",
         });
-        setSubmissionStatus('idle');
-        setErrorMessage("");
-    };
-
-    const handleCloseConfirmation = () => {
-        if (submissionStatus === 'loading') return; // Prevent closing while loading
-        setShowConfirmation(false);
-        setSubmissionStatus('idle');
         setErrorMessage("");
     };
 
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
-                <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
+                <SheetContent className="w-[400px] sm:w-[540px]">
                     <div className="flex flex-col h-full">
                         <SheetHeader className="px-6 py-6 border-b">
                             <SheetTitle>Create New Task</SheetTitle>
                             <SheetDescription>
-                                Add a new task to track progress and deliverables.
+                                Fill in the details below to create a new task.
                             </SheetDescription>
                         </SheetHeader>
 
                         <div className="flex-1 overflow-y-auto">
-                            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            <form className="px-6 py-6 space-y-6">
                                 <div className="space-y-6">
                                     {/* Submitted By Field */}
                                     <div className="space-y-3">
@@ -194,19 +191,49 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
 
                                     {/* Date Range Field */}
                                     <div className="space-y-3">
-                                        <Calendar30
-                                            selected={formData.dateRange}
-                                            onSelect={handleDateRangeChange}
-                                            label="Task Duration"
-                                            placeholder="Select date range"
-                                            disabled={(date) => {
-                                                const today = new Date();
-                                                today.setHours(0, 0, 0, 0);
-                                                const selectedDate = new Date(date);
-                                                selectedDate.setHours(0, 0, 0, 0);
-                                                return selectedDate < today;
-                                            }}
-                                        />
+                                        <Label>Task Duration</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !formData.dateRange && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.dateRange?.from ? (
+                                                        formData.dateRange.to ? (
+                                                            <>
+                                                                {format(formData.dateRange.from, "LLL dd, y")} -{" "}
+                                                                {format(formData.dateRange.to, "LLL dd, y")}
+                                                            </>
+                                                        ) : (
+                                                            format(formData.dateRange.from, "LLL dd, y")
+                                                        )
+                                                    ) : (
+                                                        <span>Select date range</span>
+                                                    )}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    initialFocus
+                                                    mode="range"
+                                                    defaultMonth={formData.dateRange?.from}
+                                                    selected={formData.dateRange}
+                                                    onSelect={handleDateRangeChange}
+                                                    numberOfMonths={2}
+                                                    disabled={(date) => {
+                                                        const today = new Date();
+                                                        today.setHours(0, 0, 0, 0);
+                                                        const selectedDate = new Date(date);
+                                                        selectedDate.setHours(0, 0, 0, 0);
+                                                        return selectedDate < today;
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
 
                                     {/* Priority Field */}
@@ -299,47 +326,22 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                             {submissionStatus === 'idle' && "Confirm Task Creation"}
                         </DialogTitle>
                         <DialogDescription>
-                            {submissionStatus === 'idle' && (
-                                "Are you sure you want to create this task? This action cannot be undone."
-                            )}
-                            {submissionStatus === 'loading' && (
-                                "Please wait while we create your task..."
-                            )}
-                            {submissionStatus === 'success' && (
-                                "Your task has been successfully created and added to the database."
-                            )}
-                            {submissionStatus === 'error' && (
-                                errorMessage || "An error occurred while creating the task. Please try again."
-                            )}
+                            {submissionStatus === 'idle' && "Are you sure you want to create this task?"}
+                            {submissionStatus === 'loading' && "Please wait while we create your task..."}
+                            {submissionStatus === 'success' && "Your task has been created successfully!"}
+                            {submissionStatus === 'error' && errorMessage}
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter className="flex gap-2">
-                        {submissionStatus === 'idle' && (
-                            <>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleCloseConfirmation}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={handleConfirmSubmit}
-                                >
-                                    Create Task
-                                </Button>
-                            </>
-                        )}
-                        {submissionStatus === 'error' && (
-                            <Button
-                                type="button"
-                                onClick={handleCloseConfirmation}
-                            >
-                                Close
+                    {submissionStatus === 'idle' && (
+                        <DialogFooter>
+                            <Button variant="outline" onClick={handleCloseConfirmation}>
+                                Cancel
                             </Button>
-                        )}
-                    </DialogFooter>
+                            <Button onClick={handleConfirmSubmit}>
+                                Create Task
+                            </Button>
+                        </DialogFooter>
+                    )}
                 </DialogContent>
             </Dialog>
         </>

@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { DashboardTable } from "./dashboard-table";
 import { TaskRow } from "@/lib/notion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface DashboardClientProps {
     reviewTasks: TaskRow[];
@@ -21,18 +24,43 @@ export function DashboardClient({ reviewTasks: initialReviewTasks, databaseId }:
     };
 
     if (reviewTasks.length === 0) {
-        return null;
+        return (
+            <Card className="mt-8">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        All Tasks Reviewed
+                    </CardTitle>
+                    <CardDescription>
+                        No tasks are currently waiting for review. Great job!
+                    </CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     return (
-        <div className="mt-8 w-full">
-            <h2 className="text-xl font-semibold mb-4">Waiting for review</h2>
-            <DashboardTable
-                data={reviewTasks}
-                showApproveColumn={true}
-                databaseId={databaseId}
-                onTaskApproved={handleTaskApproved}
-            />
-        </div>
+        <Card className="mt-8">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-orange-600" />
+                    Waiting for Review
+                    <Badge variant="secondary" className="ml-2">
+                        {reviewTasks.length}
+                    </Badge>
+                </CardTitle>
+                <CardDescription>
+                    Tasks that have been completed and are ready for your approval
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <DashboardTable
+                    data={reviewTasks}
+                    showApproveColumn={true}
+                    databaseId={databaseId}
+                    onTaskApproved={handleTaskApproved}
+                />
+            </CardContent>
+        </Card>
     );
 } 
