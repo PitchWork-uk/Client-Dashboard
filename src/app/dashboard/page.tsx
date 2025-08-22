@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId, getTasksByClientIdAndStatus, TaskRow } from "@/lib/notion";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
     Breadcrumb,
     BreadcrumbList,
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
     }
 
     const totalTasks = ongoingCount + completedCount;
-    const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+
 
     return (
         <div className="flex flex-col gap-6">
