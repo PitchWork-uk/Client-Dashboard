@@ -42,6 +42,7 @@ export default function SignInPage() {
           setError(data.message || "Login failed");
         }
       } catch (error) {
+        console.log(error);
         setError("An unexpected error occurred. Please try again.");
       }
     });

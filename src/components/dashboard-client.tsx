@@ -5,7 +5,7 @@ import { DashboardTable } from "./dashboard-table";
 import { TaskRow } from "@/lib/notion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, CheckCircle2 } from "lucide-react";
 
 interface DashboardClientProps {
     reviewTasks: TaskRow[];

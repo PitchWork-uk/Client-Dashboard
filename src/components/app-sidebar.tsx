@@ -3,7 +3,6 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
-    File,
     Home,
     Settings,
     User,
@@ -15,7 +14,6 @@ import {
     MessageSquare
 } from "lucide-react"
 
-import { NavUser } from "@/components/nav-user"
 import {
     Sidebar,
     SidebarContent,
@@ -41,7 +39,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Image from "next/image"
 
 export function AppSidebar({ user, projects = [], ...props }: { user: { name: string; email: string; type: string }; projects?: { id: string; name: string }[] } & React.ComponentProps<typeof Sidebar>) {
     const { state } = useSidebar();
