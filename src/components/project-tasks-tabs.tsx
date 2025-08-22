@@ -120,7 +120,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
                             <DialogHeader>
                                 <DialogTitle>Request Revision</DialogTitle>
                                 <DialogDescription>
-                                    Are you sure you want to request a revision for this task? This will change the status to "Revision".
+                                    Are you sure you want to request a revision for this task? This will change the status to &ldquo;Revision&ldquo;.
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="py-4">
