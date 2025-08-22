@@ -7,9 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 export default function SignInPage() {
   const [error, setError] = useState("");

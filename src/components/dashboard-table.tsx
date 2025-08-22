@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { File, Calendar, ExternalLink, Download } from "lucide-react";
+import { File, Calendar } from "lucide-react";
 import { Figma, File as FileIcon, FolderOpen } from "lucide-react";
 import {
     ColumnDef,
@@ -23,7 +23,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ApproveTaskButton } from "./approve-task-button";
 
 interface DashboardTableProps {

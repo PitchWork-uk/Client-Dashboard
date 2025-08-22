@@ -11,7 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import * as React from "react";
 import { ProjectTasksTabs } from "@/components/project-tasks-tabs";
 import { FolderOpen, Calendar, Users, Target } from "lucide-react";

@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { getProjectsByClientName, getClientByEmail, getTaskCountsByClientId, getTasksByClientIdAndStatus, TaskRow } from "@/lib/notion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
     Breadcrumb,
@@ -18,11 +17,8 @@ import {
     Clock, 
     CheckCircle2, 
     TrendingUp, 
-    Users, 
-    Calendar,
     BarChart3,
-    Activity,
-    Target
+
 } from "lucide-react";
 
 function DashboardBreadcrumb() {
