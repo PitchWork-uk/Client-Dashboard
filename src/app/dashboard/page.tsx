@@ -56,7 +56,6 @@ export default async function DashboardPage() {
         reviewTasks = await getTasksByClientIdAndStatus(databaseId, client.id, "Client Review");
     }
 
-    const totalTasks = ongoingCount + completedCount;
 
 
     return (
