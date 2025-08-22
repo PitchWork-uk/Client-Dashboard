@@ -55,7 +55,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     <CardHeader>
                         <CardTitle className="text-center">Project Not Found</CardTitle>
                         <CardDescription className="text-center">
-                            The project you're looking for doesn't exist or you don't have access to it.
+                            The project you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="text-center">
