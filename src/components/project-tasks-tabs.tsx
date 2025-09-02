@@ -29,6 +29,9 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
     );
     const reviewTasks = localTasks.filter((task) => task.status === "Client Review");
     const completedTasks = localTasks.filter((task) => task.status === "Completed");
+    const othersTasks = localTasks.filter(
+        (task) => task.status === "Archived" || task.status === "Cancelled" || task.status === "Rejected"
+    );
 
     const handleTaskApproved = () => {
         // Refetch all data if callback provided
@@ -181,6 +184,13 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
                         >
                             Completed
                         </button>
+                        <button
+                            className={`px-4 py-2 font-medium border-b-2 transition-colors ${tab === "others" ? "border-orange-600 text-orange-600" : "border-transparent text-gray-500 hover:text-black"}`}
+                            onClick={() => setTab("others")}
+                            type="button"
+                        >
+                            Others
+                        </button>
                     </div>
                     <Button onClick={handleCreateTask} size="sm" className="flex items-center gap-2 cursor-pointer">
                         <Plus className="w-4 h-4" />
@@ -190,6 +200,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
                 {tab === "ongoing" && <DashboardTable data={ongoingTasks} hideFilesColumn />}
                 {tab === "review" && <DashboardTable data={reviewTasks} extraColumns={[approveColumn]} hideFilesColumn />}
                 {tab === "completed" && <DashboardTable data={completedTasks} />}
+                {tab === "others" && <DashboardTable data={othersTasks} />}
             </div>
 
             <CreateTaskSheet
