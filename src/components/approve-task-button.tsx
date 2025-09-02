@@ -82,7 +82,7 @@ export function ApproveTaskButton({ taskId, taskTitle, databaseId, feedbackUrl, 
                     <DialogHeader>
                         <DialogTitle>Approve Task</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to approve this task? This will mark it as completed.
+                            Are you sure you want to approve this task? This will mark it as ready for Hadover.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
