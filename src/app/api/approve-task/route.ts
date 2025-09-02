@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid unique ID number format' }, { status: 400 });
         }
 
-        const success = await updateTaskStatusByUniqueId(databaseId, numericId, 'Completed');
+        const success = await updateTaskStatusByUniqueId(databaseId, numericId, 'Handover');
 
         if (success) {
             return NextResponse.json({ success: true });
