@@ -59,7 +59,7 @@ export default function SignInPage() {
             </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">ProjectWorks</h1>
+            <h1 className="text-3xl font-bold text-gray-900">PitchWork</h1>
             <p className="text-gray-600 mt-2">Client Dashboard</p>
           </div>
         </div>

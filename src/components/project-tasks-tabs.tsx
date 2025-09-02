@@ -88,7 +88,7 @@ export function ProjectTasksTabs({ tasks, onRefetch, databaseId, projectId }: { 
         cell: ({ row }: { row: { original: TaskRow } }) => {
             const task = row.original;
             return (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                     <ApproveTaskButton
                         taskId={task.uniqueIdNumber?.toString() || task.id}
                         taskTitle={task.title}

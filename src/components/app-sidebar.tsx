@@ -7,11 +7,7 @@ import {
     Settings,
     User,
     LogOut,
-    Plus,
     FolderOpen,
-    BarChart3,
-    Calendar,
-    MessageSquare
 } from "lucide-react"
 
 import {
@@ -77,7 +73,7 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                             <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-500 text-white">
                                 <span className="font-bold text-sm">PW</span>
                             </div>
-                            <span className="text-xl font-bold text-orange-600">ProjectWorks</span>
+                            <span className="text-xl font-bold text-orange-600">PitchWork</span>
                         </div>
                     )}
                 </div>
@@ -95,49 +91,6 @@ export function AppSidebar({ user, projects = [], ...props }: { user: { name: st
                                     <a href="/dashboard" className="flex items-center gap-3">
                                         <Home size={20} />
                                         {!isCollapsed && <span>Dashboard</span>}
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <a href="#" className="flex items-center gap-3">
-                                        <Plus size={20} />
-                                        {!isCollapsed && <span>New Project</span>}
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                {/* Navigation */}
-                <SidebarGroup className="mt-6">
-                    <SidebarGroupLabel className={isCollapsed ? "justify-center" : undefined}>
-                        {!isCollapsed && "Navigation"}
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <a href="#" className="flex items-center gap-3">
-                                        <BarChart3 size={20} />
-                                        {!isCollapsed && <span>Analytics</span>}
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <a href="#" className="flex items-center gap-3">
-                                        <Calendar size={20} />
-                                        {!isCollapsed && <span>Calendar</span>}
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <a href="#" className="flex items-center gap-3">
-                                        <MessageSquare size={20} />
-                                        {!isCollapsed && <span>Messages</span>}
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

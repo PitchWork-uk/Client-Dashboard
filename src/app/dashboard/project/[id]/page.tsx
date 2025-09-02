@@ -71,7 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     const tasks = await getTasksByProjectId(worksDatabaseId, id);
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6 ">
             {/* Header */}
             <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]:pl-2 border-b px-4 mb-4">
                 <SidebarTrigger className="-ml-1" />
@@ -139,7 +139,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tasks.filter(task => task.status === "In Progress").length}
+                                {tasks.filter(task => task.status !== "Client Review" && task.status !== "Completed").length}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 Tasks currently being worked on
