@@ -3,11 +3,11 @@ import { createTask } from '@/lib/notion';
 
 export async function POST(request: NextRequest) {
     try {
-        const { submittedBy, title, dateRange, databaseId, projectId, priority } = await request.json();
+        const { submittedBy, title, dateRange, databaseId, projectId, priority, details, attachmentsInfo, category } = await request.json();
 
-        if (!submittedBy || !title || !dateRange || !databaseId) {
+        if (!submittedBy || !title || !dateRange || !databaseId || !priority || !category) {
             return NextResponse.json({
-                error: 'Submitted by, title, date range, and database ID are required'
+                error: 'Submitted by, title, date range, priority, category, and database ID are required'
             }, { status: 400 });
         }
 
@@ -26,6 +26,9 @@ export async function POST(request: NextRequest) {
             },
             projectId,
             priority,
+            details,
+            attachmentsInfo,
+            category,
         });
 
         if (result.success) {

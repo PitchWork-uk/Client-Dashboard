@@ -49,6 +49,9 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
         taskTitle: "",
         dateRange: undefined as DateRange | undefined,
         priority: "",
+        category: "",
+        details: "",
+        attachmentsInfo: "",
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -72,9 +75,9 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate form data
-        if (!formData.submittedBy.trim() || !formData.taskTitle.trim() || !formData.dateRange?.from || !formData.dateRange?.to) {
-            setErrorMessage("Please fill in all required fields");
+        // Validate form data (Submitted By, Title, Date range, Priority, Category)
+        if (!formData.submittedBy.trim() || !formData.taskTitle.trim() || !formData.dateRange?.from || !formData.dateRange?.to || !formData.priority || !formData.category) {
+            setErrorMessage("Please fill in all required fields: Submitted By, Title, Date, Priority, Category.");
             return;
         }
 
@@ -105,8 +108,11 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                         to: formData.dateRange?.to?.toISOString(),
                     },
                     priority: formData.priority,
+                    category: formData.category,
                     projectId: projectId,
                     databaseId: databaseId,
+                    details: formData.details,
+                    attachmentsInfo: formData.attachmentsInfo,
                 }),
             });
 
@@ -146,6 +152,9 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
             taskTitle: "",
             dateRange: undefined,
             priority: "",
+            category: "",
+            details: "",
+            attachmentsInfo: "",
         });
         setErrorMessage("");
     };
@@ -167,7 +176,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                                 <div className="space-y-6">
                                     {/* Submitted By Field */}
                                     <div className="space-y-3">
-                                        <Label htmlFor="submittedBy">Submitted By</Label>
+                                        <Label htmlFor="submittedBy">Submitted By <span className="text-red-600">*</span></Label>
                                         <Input
                                             id="submittedBy"
                                             placeholder="Enter your name"
@@ -179,7 +188,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
 
                                     {/* Task Title Field */}
                                     <div className="space-y-3">
-                                        <Label htmlFor="taskTitle">Task Title</Label>
+                                        <Label htmlFor="taskTitle">Task Title <span className="text-red-600">*</span></Label>
                                         <Input
                                             id="taskTitle"
                                             placeholder="Enter task title"
@@ -191,7 +200,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
 
                                     {/* Date Range Field */}
                                     <div className="space-y-3">
-                                        <Label>Task Duration</Label>
+                                        <Label>Task Duration <span className="text-red-600">*</span></Label>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
@@ -238,7 +247,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
 
                                     {/* Priority Field */}
                                     <div className="space-y-3">
-                                        <Label htmlFor="priority">Priority</Label>
+                                        <Label htmlFor="priority">Priority <span className="text-red-600">*</span></Label>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button
@@ -273,27 +282,88 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
+
+                                    {/* Category Field */}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="category">Category <span className="text-red-600">*</span></Label>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full justify-between"
+                                                >
+                                                    {formData.category || "Select category"}
+                                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent className="w-full">
+                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Slideshow")}>
+                                                    Slideshow
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Pitch")}>
+                                                    Pitch
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Development")}>
+                                                    Development
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Design")}>
+                                                    Design
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+
+                                    {/* Question 1: Write task details? */}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="details">Write task details?</Label>
+                                        <textarea
+                                            id="details"
+                                            placeholder="Type the task details here..."
+                                            className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                            value={formData.details}
+                                            onChange={(e) => handleInputChange("details", e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* Question 2: What are the attachments? */}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="attachmentsInfo">What are the attachments?</Label>
+                                        <textarea
+                                            id="attachmentsInfo"
+                                            placeholder="List attachments or describe them..."
+                                            className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                            value={formData.attachmentsInfo}
+                                            onChange={(e) => handleInputChange("attachmentsInfo", e.target.value)}
+                                        />
+                                    </div>
                                 </div>
                             </form>
                         </div>
 
                         <SheetFooter className="px-6 py-6 border-t bg-muted/50">
-                            <div className="flex gap-3 w-full">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleCancel}
-                                    className="flex-1"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    className="flex-1"
-                                    onClick={handleSubmit}
-                                >
-                                    Create Task
-                                </Button>
+                            <div className="flex flex-col gap-3 w-full">
+                                {errorMessage && (
+                                    <div className="text-red-600 text-sm">
+                                        {errorMessage}
+                                    </div>
+                                )}
+                                <div className="flex gap-3 w-full">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleCancel}
+                                        className="flex-1"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="flex-1"
+                                        onClick={handleSubmit}
+                                    >
+                                        Create Task
+                                    </Button>
+                                </div>
                             </div>
                         </SheetFooter>
                     </div>

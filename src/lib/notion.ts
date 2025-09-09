@@ -448,6 +448,9 @@ export async function createTask(databaseId: string, taskData: {
     dateRange: { from: Date; to: Date };
     projectId?: string;
     priority?: string;
+    details?: string;
+    attachmentsInfo?: string;
+    category?: string;
 }): Promise<{ success: boolean; error?: string }> {
     try {
         const properties: Record<string, unknown> = {
@@ -485,6 +488,13 @@ export async function createTask(databaseId: string, taskData: {
                     name: "Request",
                 },
             },
+            ...(taskData.category ? {
+                "Category": {
+                    select: {
+                        name: taskData.category,
+                    },
+                },
+            } : {}),
         };
 
         // Add Priority if provided
@@ -512,6 +522,32 @@ export async function createTask(databaseId: string, taskData: {
                 database_id: databaseId,
             },
             properties: properties as Parameters<typeof notion.pages.create>[0]['properties'],
+            children: [
+                ...(taskData.details
+                    ? [
+                        {
+                            object: "block",
+                            heading_2: { rich_text: [{ type: "text", text: { content: "Write task details?" } }] },
+                        } as any,
+                        {
+                            object: "block",
+                            paragraph: { rich_text: [{ type: "text", text: { content: taskData.details } }] },
+                        } as any,
+                    ]
+                    : []),
+                ...(taskData.attachmentsInfo
+                    ? [
+                        {
+                            object: "block",
+                            heading_2: { rich_text: [{ type: "text", text: { content: "What are the attachments?" } }] },
+                        } as any,
+                        {
+                            object: "block",
+                            paragraph: { rich_text: [{ type: "text", text: { content: taskData.attachmentsInfo } }] },
+                        } as any,
+                    ]
+                    : []),
+            ] as any,
         });
 
         return { success: true };
