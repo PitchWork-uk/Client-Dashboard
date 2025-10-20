@@ -3,7 +3,7 @@ import { createTask } from '@/lib/notion';
 
 export async function POST(request: NextRequest) {
     try {
-        const { submittedBy, title, dateRange, databaseId, projectId, priority, details, attachmentsInfo, category } = await request.json();
+        const { submittedBy, title, dateRange, databaseId, projectId, priority, category, extra, extraDisplay } = await request.json();
 
         if (!submittedBy || !title || !dateRange || !databaseId || !priority || !category) {
             return NextResponse.json({
@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
             },
             projectId,
             priority,
-            details,
-            attachmentsInfo,
             category,
+            extra,
+            extraDisplay,
         });
 
         if (result.success) {

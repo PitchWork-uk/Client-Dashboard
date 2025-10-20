@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { CATEGORY_FIELDS, type CategoryKey } from "./task-category-fields";
 
 interface CreateTaskSheetProps {
     isOpen: boolean;
@@ -50,8 +51,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
         dateRange: undefined as DateRange | undefined,
         priority: "",
         category: "",
-        details: "",
-        attachmentsInfo: "",
+        extra: {} as Record<string, string>,
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -65,10 +65,25 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
         }));
     };
 
+    const handleExtraChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            extra: { ...prev.extra, [field]: value }
+        }));
+    };
+
     const handleDateRangeChange = (range: DateRange | undefined) => {
         setFormData(prev => ({
             ...prev,
             dateRange: range
+        }));
+    };
+
+    const handleCategoryChange = (category: string) => {
+        setFormData(prev => ({
+            ...prev,
+            category,
+            extra: {},
         }));
     };
 
@@ -78,6 +93,15 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
         // Validate form data (Submitted By, Title, Date range, Priority, Category)
         if (!formData.submittedBy.trim() || !formData.taskTitle.trim() || !formData.dateRange?.from || !formData.dateRange?.to || !formData.priority || !formData.category) {
             setErrorMessage("Please fill in all required fields: Submitted By, Title, Date, Priority, Category.");
+            return;
+        }
+
+        // Validate category-specific required fields
+        const cat = formData.category as CategoryKey;
+        const fields = CATEGORY_FIELDS[cat as CategoryKey] || [];
+        const missing = fields.filter(f => f.required && !String(formData.extra?.[f.id] || "").trim());
+        if (missing.length > 0) {
+            setErrorMessage(`Please fill in required: ${missing.map(m => m.label).join(", ")}`);
             return;
         }
 
@@ -95,6 +119,16 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
         setErrorMessage("");
 
         try {
+            // Build labeled extra display pairs for clearer Notion formatting
+            const cat = formData.category as CategoryKey;
+            const defs = (CATEGORY_FIELDS[cat as CategoryKey] || []);
+            const extraDisplay = Object.entries(formData.extra || {})
+                .filter(([, v]) => String(v || "").trim())
+                .map(([id, value]) => {
+                    const def = defs.find(d => d.id === id);
+                    return { label: def ? def.label : id, value: String(value) };
+                });
+
             const response = await fetch("/api/create-task", {
                 method: "POST",
                 headers: {
@@ -111,8 +145,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                     category: formData.category,
                     projectId: projectId,
                     databaseId: databaseId,
-                    details: formData.details,
-                    attachmentsInfo: formData.attachmentsInfo,
+                    extraDisplay,
                 }),
             });
 
@@ -153,8 +186,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
             dateRange: undefined,
             priority: "",
             category: "",
-            details: "",
-            attachmentsInfo: "",
+            extra: {},
         });
         setErrorMessage("");
     };
@@ -167,7 +199,7 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                         <SheetHeader className="px-6 py-6 border-b">
                             <SheetTitle>Create New Task</SheetTitle>
                             <SheetDescription>
-                                Fill in the details below to create a new task.
+                                Provide the information below to create a new task.
                             </SheetDescription>
                         </SheetHeader>
 
@@ -297,45 +329,73 @@ export function CreateTaskSheet({ isOpen, onOpenChange, projectId, databaseId, o
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="w-full">
-                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Slideshow")}>
+                                                <DropdownMenuItem onClick={() => handleCategoryChange("Slideshow")}>
                                                     Slideshow
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Pitch")}>
+                                                <DropdownMenuItem onClick={() => handleCategoryChange("Pitch")}>
                                                     Pitch
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Development")}>
+                                                <DropdownMenuItem onClick={() => handleCategoryChange("Development")}>
                                                     Development
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleInputChange("category", "Design")}>
+                                                <DropdownMenuItem onClick={() => handleCategoryChange("Design")}>
                                                     Design
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
 
-                                    {/* Question 1: Write task details? */}
-                                    <div className="space-y-3">
-                                        <Label htmlFor="details">Write task details?</Label>
-                                        <textarea
-                                            id="details"
-                                            placeholder="Type the task details here..."
-                                            className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                            value={formData.details}
-                                            onChange={(e) => handleInputChange("details", e.target.value)}
-                                        />
-                                    </div>
+                                    {/* Dynamic follow-up fields based on Category */}
+                                    {formData.category && (
+                                        <div className="space-y-4">
+                                            {(CATEGORY_FIELDS[formData.category as CategoryKey] || []).map((f) => (
+                                                <div key={f.id} className="space-y-2">
+                                                    <Label htmlFor={f.id}>
+                                                        {f.label} {f.required && <span className="text-red-600">*</span>}
+                                                    </Label>
+                                                    {f.type === "text" && (
+                                                        <Input
+                                                            id={f.id}
+                                                            placeholder={("placeholder" in f && f.placeholder) ? f.placeholder : ""}
+                                                            value={formData.extra[f.id] || ""}
+                                                            onChange={(e) => handleExtraChange(f.id, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {f.type === "textarea" && (
+                                                        <textarea
+                                                            id={f.id}
+                                                            placeholder={("placeholder" in f && f.placeholder) ? f.placeholder : ""}
+                                                            className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                                            value={formData.extra[f.id] || ""}
+                                                            onChange={(e) => handleExtraChange(f.id, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {f.type === "select" && (
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className="w-full justify-between"
+                                                                >
+                                                                    {formData.extra[f.id] || `Select ${f.label.toLowerCase()}`}
+                                                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                {f.options.map(opt => (
+                                                                    <DropdownMenuItem key={opt} onClick={() => handleExtraChange(f.id, opt)}>
+                                                                        {opt}
+                                                                    </DropdownMenuItem>
+                                                                ))}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
 
-                                    {/* Question 2: What are the attachments? */}
-                                    <div className="space-y-3">
-                                        <Label htmlFor="attachmentsInfo">What are the attachments?</Label>
-                                        <textarea
-                                            id="attachmentsInfo"
-                                            placeholder="List attachments or describe them..."
-                                            className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                            value={formData.attachmentsInfo}
-                                            onChange={(e) => handleInputChange("attachmentsInfo", e.target.value)}
-                                        />
-                                    </div>
+                                    {/* Legacy text areas removed in favor of category follow-ups */}
                                 </div>
                             </form>
                         </div>
