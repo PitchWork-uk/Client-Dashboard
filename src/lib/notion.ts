@@ -448,9 +448,9 @@ export async function createTask(databaseId: string, taskData: {
     dateRange: { from: Date; to: Date };
     projectId?: string;
     priority?: string;
-    details?: string;
-    attachmentsInfo?: string;
     category?: string;
+    extra?: Record<string, string>;
+    extraDisplay?: { label: string; value: string }[];
 }): Promise<{ success: boolean; error?: string }> {
     try {
         const properties: Record<string, unknown> = {
@@ -523,28 +523,22 @@ export async function createTask(databaseId: string, taskData: {
             },
             properties: properties as Parameters<typeof notion.pages.create>[0]['properties'],
             children: [
-                ...(taskData.details
+                ...((taskData.extraDisplay && taskData.extraDisplay.length > 0)
                     ? [
                         {
                             object: "block",
-                            heading_2: { rich_text: [{ type: "text", text: { content: "Write task details?" } }] },
+                            heading_2: { rich_text: [{ type: "text", text: { content: "Category follow-up" } }] },
                         } as any,
-                        {
-                            object: "block",
-                            paragraph: { rich_text: [{ type: "text", text: { content: taskData.details } }] },
-                        } as any,
-                    ]
-                    : []),
-                ...(taskData.attachmentsInfo
-                    ? [
-                        {
-                            object: "block",
-                            heading_2: { rich_text: [{ type: "text", text: { content: "What are the attachments?" } }] },
-                        } as any,
-                        {
-                            object: "block",
-                            paragraph: { rich_text: [{ type: "text", text: { content: taskData.attachmentsInfo } }] },
-                        } as any,
+                        ...taskData.extraDisplay.flatMap(({ label, value }) => ([
+                            {
+                                object: "block",
+                                paragraph: { rich_text: [{ type: "text", text: { content: label, annotations: { bold: true } as any } }] },
+                            } as any,
+                            {
+                                object: "block",
+                                paragraph: { rich_text: [{ type: "text", text: { content: value } }] },
+                            } as any,
+                        ])),
                     ]
                     : []),
             ] as any,
