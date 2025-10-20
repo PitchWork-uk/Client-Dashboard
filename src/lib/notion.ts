@@ -1,5 +1,8 @@
 import { Client } from "@notionhq/client";
-import type { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import type {
+  QueryDatabaseParameters,
+  BlockObjectRequest,
+} from "@notionhq/client/build/src/api-endpoints";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -723,40 +726,45 @@ export async function createTask(
       >[0]["properties"],
       children: [
         ...(taskData.extraDisplay && taskData.extraDisplay.length > 0
-          ? [
+          ? ([
               {
-                object: "block",
+                type: "heading_2" as const,
                 heading_2: {
                   rich_text: [
-                    { type: "text", text: { content: "Category follow-up" } },
+                    {
+                      type: "text" as const,
+                      text: { content: "Category follow-up" },
+                    },
                   ],
                 },
-              } as any,
+              },
               ...taskData.extraDisplay.flatMap(({ label, value }) => [
                 {
-                  object: "block",
+                  type: "paragraph" as const,
                   paragraph: {
                     rich_text: [
                       {
-                        type: "text",
+                        type: "text" as const,
                         text: {
                           content: label,
-                          annotations: { bold: true } as any,
+                          annotations: { bold: true },
                         },
                       },
                     ],
                   },
-                } as any,
+                },
                 {
-                  object: "block",
+                  type: "paragraph" as const,
                   paragraph: {
-                    rich_text: [{ type: "text", text: { content: value } }],
+                    rich_text: [
+                      { type: "text" as const, text: { content: value } },
+                    ],
                   },
-                } as any,
+                },
               ]),
-            ]
+            ] as BlockObjectRequest[])
           : []),
-      ] as any,
+      ] as BlockObjectRequest[],
     });
 
     return { success: true };
