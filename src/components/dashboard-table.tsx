@@ -137,6 +137,32 @@ export function DashboardTable({
       ),
     },
     {
+      accessorKey: "submittedBy",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="h-auto p-0 font-medium"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Submitted by
+          {column.getIsSorted() === "asc"
+            ? " ↑"
+            : column.getIsSorted() === "desc"
+            ? " ↓"
+            : ""}
+        </Button>
+      ),
+      enableSorting: true,
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = String(rowA.getValue(columnId) ?? "").toLowerCase();
+        const b = String(rowB.getValue(columnId) ?? "").toLowerCase();
+        return a.localeCompare(b);
+      },
+      cell: ({ row }: { row: Row<TaskRow> }) => (
+        <span className="text-sm">{row.getValue("submittedBy") || "-"}</span>
+      ),
+    },
+    {
       accessorKey: "priority",
       header: ({ column }) => (
         <Button
