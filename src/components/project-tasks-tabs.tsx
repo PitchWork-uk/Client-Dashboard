@@ -253,16 +253,14 @@ export function ProjectTasksTabs({
             Create Task
           </Button>
         </div>
-        {tab === "all" && <DashboardTable data={localTasks} />}
+        {tab === "all" && (
+          <DashboardTable data={localTasks} extraColumns={[approveColumn]} />
+        )}
         {tab === "ongoing" && (
           <DashboardTable data={ongoingTasks} hideFilesColumn />
         )}
         {tab === "review" && (
-          <DashboardTable
-            data={reviewTasks}
-            extraColumns={[approveColumn]}
-            hideFilesColumn
-          />
+          <DashboardTable data={reviewTasks} extraColumns={[approveColumn]} />
         )}
         {tab === "completed" && <DashboardTable data={completedTasks} />}
         {tab === "others" && <DashboardTable data={othersTasks} />}
