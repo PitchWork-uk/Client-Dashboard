@@ -51,6 +51,16 @@ export type Comment = {
   created_time: string;
 };
 
+export type QuestionField = {
+  id: string;
+  question: string;
+  questionType: "Text" | "Textarea" | "Select" | "URL" | "Date" | "Number";
+  taskType: string;
+  options?: string[];
+  required: boolean;
+  description?: string;
+};
+
 export async function getTasksByProjectId(
   databaseId: string,
   projectId?: string
@@ -771,5 +781,81 @@ export async function createTask(
   } catch (error) {
     console.error("Error creating task:", error);
     return { success: false, error: "Failed to create task" };
+  }
+}
+
+export async function getQuestionsByTaskType(
+  databaseId: string,
+  taskType: string
+): Promise<QuestionField[]> {
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      filter: {
+        property: "Category",
+        select: {
+          equals: taskType,
+        },
+      },
+    });
+    console.log(response.results);
+    return (response.results as Array<Record<string, unknown>>)
+      .map((page) => {
+        const p = page as {
+          id: string;
+          properties: Record<string, unknown>;
+        };
+
+        const question =
+          (
+            p.properties["Question"] as {
+              title?: Array<{ plain_text?: string }>;
+            }
+          )?.title?.[0]?.plain_text || "";
+
+        const questionType =
+          (p.properties["Question type"] as { select?: { name?: string } })
+            ?.select?.name || "Text";
+
+        const taskTypeValue =
+          (p.properties["Task type"] as { select?: { name?: string } })?.select
+            ?.name || "";
+
+        const optionsString =
+          (
+            p.properties["Options"] as {
+              rich_text?: Array<{ plain_text?: string }>;
+            }
+          )?.rich_text?.[0]?.plain_text || "";
+
+        const required =
+          (p.properties["Required"] as { checkbox?: boolean })?.checkbox ||
+          false;
+
+        const description =
+          (
+            p.properties["Description"] as {
+              rich_text?: Array<{ plain_text?: string }>;
+            }
+          )?.rich_text?.[0]?.plain_text || "";
+
+        return {
+          id: p.id,
+          question,
+          questionType: questionType as QuestionField["questionType"],
+          taskType: taskTypeValue,
+          options: optionsString
+            ? optionsString.split(",").map((opt) => opt.trim())
+            : undefined,
+          required,
+          description: description || undefined,
+        };
+      })
+      .filter(
+        (question) => question.question && question.question.trim() !== ""
+      );
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    return [];
   }
 }
