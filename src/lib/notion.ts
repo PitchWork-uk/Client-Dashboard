@@ -709,9 +709,11 @@ export async function createTask(
 
     // Add Priority if provided
     if (taskData.priority) {
+      // Convert numeric priority to text format for Notion
+      const priorityText = `Priority ${taskData.priority}`;
       properties["Priority"] = {
         select: {
-          name: taskData.priority,
+          name: priorityText,
         },
       };
     }

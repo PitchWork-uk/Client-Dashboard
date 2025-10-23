@@ -86,6 +86,8 @@ export function CreateTaskSheet({
       formData.dateRange?.from &&
       formData.dateRange?.to &&
       formData.priority &&
+      parseInt(formData.priority) >= 1 &&
+      parseInt(formData.priority) <= 10 &&
       formData.category;
 
     // Check category-specific required fields
@@ -167,7 +169,12 @@ export function CreateTaskSheet({
     if (!formData.taskTitle.trim()) basicRequiredFields.push("Title");
     if (!formData.dateRange?.from || !formData.dateRange?.to)
       basicRequiredFields.push("Date Range");
-    if (!formData.priority) basicRequiredFields.push("Priority");
+    if (
+      !formData.priority ||
+      parseInt(formData.priority) < 1 ||
+      parseInt(formData.priority) > 10
+    )
+      basicRequiredFields.push("Priority (1-10)");
     if (!formData.category) basicRequiredFields.push("Category");
 
     if (basicRequiredFields.length > 0) {
@@ -378,45 +385,33 @@ export function CreateTaskSheet({
                   {/* Priority Field */}
                   <div className="space-y-3">
                     <Label htmlFor="priority">
-                      Priority <span className="text-red-600">*</span>
+                      Priority (1-10) <span className="text-red-600">*</span>
                     </Label>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-between"
-                        >
-                          {formData.priority || "Select priority"}
-                          <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full">
-                        <DropdownMenuItem
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
+                        <button
+                          key={value}
+                          type="button"
                           onClick={() =>
-                            handleInputChange("priority", "Critical")
+                            handleInputChange("priority", value.toString())
                           }
+                          className={cn(
+                            "w-8 h-8 rounded-md border-2 transition-all duration-200 hover:scale-110",
+                            formData.priority &&
+                              parseInt(formData.priority) === value
+                              ? "bg-orange-500 border-orange-500 text-white"
+                              : "bg-white border-gray-300 text-gray-400 hover:border-orange-300"
+                          )}
                         >
-                          Critical
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleInputChange("priority", "High")}
-                        >
-                          High
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleInputChange("priority", "Medium")
-                          }
-                        >
-                          Medium
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleInputChange("priority", "Low")}
-                        >
-                          Low
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          <span className="text-sm font-medium">{value}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {formData.priority && (
+                      <p className="text-sm text-muted-foreground">
+                        Priority: {formData.priority}/10
+                      </p>
+                    )}
                   </div>
 
                   {/* Category Field */}
