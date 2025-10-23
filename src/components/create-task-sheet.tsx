@@ -77,11 +77,36 @@ export function CreateTaskSheet({
   const [questions, setQuestions] = useState<QuestionField[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
 
+  // Helper function to check if all required fields are filled
+  const isFormValid = () => {
+    // Check basic required fields
+    const basicFieldsValid =
+      formData.submittedBy.trim() &&
+      formData.taskTitle.trim() &&
+      formData.dateRange?.from &&
+      formData.dateRange?.to &&
+      formData.priority &&
+      formData.category;
+
+    // Check category-specific required fields
+    const requiredQuestionsValid = questions.every(
+      (q) =>
+        !q.required || (formData.extra[q.id] && formData.extra[q.id].trim())
+    );
+
+    return basicFieldsValid && requiredQuestionsValid;
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    // Clear error message when user starts filling required fields
+    if (errorMessage && value.trim()) {
+      setErrorMessage("");
+    }
   };
 
   const handleExtraChange = (field: string, value: string) => {
@@ -89,6 +114,11 @@ export function CreateTaskSheet({
       ...prev,
       extra: { ...prev.extra, [field]: value },
     }));
+
+    // Clear error message when user starts filling required fields
+    if (errorMessage && value.trim()) {
+      setErrorMessage("");
+    }
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
@@ -129,29 +159,35 @@ export function CreateTaskSheet({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear any previous error messages
 
-    // Validate form data (Submitted By, Title, Date range, Priority, Category)
-    if (
-      !formData.submittedBy.trim() ||
-      !formData.taskTitle.trim() ||
-      !formData.dateRange?.from ||
-      !formData.dateRange?.to ||
-      !formData.priority ||
-      !formData.category
-    ) {
+    // Validate basic required fields
+    const basicRequiredFields = [];
+    if (!formData.submittedBy.trim()) basicRequiredFields.push("Submitted By");
+    if (!formData.taskTitle.trim()) basicRequiredFields.push("Title");
+    if (!formData.dateRange?.from || !formData.dateRange?.to)
+      basicRequiredFields.push("Date Range");
+    if (!formData.priority) basicRequiredFields.push("Priority");
+    if (!formData.category) basicRequiredFields.push("Category");
+
+    if (basicRequiredFields.length > 0) {
       setErrorMessage(
-        "Please fill in all required fields: Submitted By, Title, Date, Priority, Category."
+        `Please fill in all required fields: ${basicRequiredFields.join(", ")}.`
       );
       return;
     }
 
     // Validate category-specific required fields
-    const missing = questions.filter(
+    const missingRequiredQuestions = questions.filter(
       (q) => q.required && !String(formData.extra?.[q.id] || "").trim()
     );
-    if (missing.length > 0) {
+
+    if (missingRequiredQuestions.length > 0) {
+      const questionNames = missingRequiredQuestions.map((q) => q.question);
       setErrorMessage(
-        `Please fill in required: ${missing.map((m) => m.question).join(", ")}`
+        `Please fill in the following required fields: ${questionNames.join(
+          ", "
+        )}.`
       );
       return;
     }
@@ -458,6 +494,12 @@ export function CreateTaskSheet({
                                 onChange={(e) =>
                                   handleExtraChange(question.id, e.target.value)
                                 }
+                                className={
+                                  question.required &&
+                                  !formData.extra[question.id]?.trim()
+                                    ? "border-red-500"
+                                    : ""
+                                }
                               />
                             )}
 
@@ -470,6 +512,12 @@ export function CreateTaskSheet({
                                 value={formData.extra[question.id] || ""}
                                 onChange={(e) =>
                                   handleExtraChange(question.id, e.target.value)
+                                }
+                                className={
+                                  question.required &&
+                                  !formData.extra[question.id]?.trim()
+                                    ? "border-red-500"
+                                    : ""
                                 }
                               />
                             )}
@@ -484,6 +532,12 @@ export function CreateTaskSheet({
                                 onChange={(e) =>
                                   handleExtraChange(question.id, e.target.value)
                                 }
+                                className={
+                                  question.required &&
+                                  !formData.extra[question.id]?.trim()
+                                    ? "border-red-500"
+                                    : ""
+                                }
                               />
                             )}
 
@@ -496,7 +550,10 @@ export function CreateTaskSheet({
                                     className={cn(
                                       "w-full justify-start text-left font-normal",
                                       !formData.extra[question.id] &&
-                                        "text-muted-foreground"
+                                        "text-muted-foreground",
+                                      question.required &&
+                                        !formData.extra[question.id]?.trim() &&
+                                        "border-red-500"
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -545,7 +602,12 @@ export function CreateTaskSheet({
                               <textarea
                                 id={question.id}
                                 placeholder="Enter your answer"
-                                className="w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                className={cn(
+                                  "w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                                  question.required &&
+                                    !formData.extra[question.id]?.trim() &&
+                                    "border-red-500"
+                                )}
                                 value={formData.extra[question.id] || ""}
                                 onChange={(e) =>
                                   handleExtraChange(question.id, e.target.value)
@@ -559,7 +621,12 @@ export function CreateTaskSheet({
                                 <DropdownMenuTrigger asChild>
                                   <Button
                                     variant="outline"
-                                    className="w-full justify-between"
+                                    className={cn(
+                                      "w-full justify-between",
+                                      question.required &&
+                                        !formData.extra[question.id]?.trim() &&
+                                        "border-red-500"
+                                    )}
                                   >
                                     {formData.extra[question.id] ||
                                       `Select an option`}
@@ -616,8 +683,9 @@ export function CreateTaskSheet({
                     type="submit"
                     className="flex-1"
                     onClick={handleSubmit}
+                    disabled={!isFormValid()}
                   >
-                    Create Task
+                    {!isFormValid() ? "Fill Required Fields" : "Create Task"}
                   </Button>
                 </div>
               </div>
