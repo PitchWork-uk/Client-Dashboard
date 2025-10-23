@@ -114,6 +114,7 @@ export function CreateTaskSheet({
       if (response.ok) {
         const data = await response.json();
         setQuestions(data.questions || []);
+        console.log(data.questions);
       } else {
         console.error("Failed to fetch questions");
         setQuestions([]);
@@ -256,7 +257,7 @@ export function CreateTaskSheet({
 
             <div className="flex-1 overflow-y-auto">
               <form className="px-6 py-6 space-y-6">
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {/* Submitted By Field */}
                   <div className="space-y-3">
                     <Label htmlFor="submittedBy">
@@ -431,7 +432,7 @@ export function CreateTaskSheet({
 
                   {/* Dynamic follow-up fields based on Category */}
                   {formData.category && (
-                    <div className="space-y-4">
+                    <div className="space-y-8">
                       {loadingQuestions ? (
                         <div className="flex items-center justify-center py-4">
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -448,7 +449,7 @@ export function CreateTaskSheet({
                             </Label>
 
                             {/* Text input */}
-                            {question.questionType === "Text" && (
+                            {question.type === "Text" && (
                               <Input
                                 id={question.id}
                                 type="text"
@@ -461,7 +462,7 @@ export function CreateTaskSheet({
                             )}
 
                             {/* Number input */}
-                            {question.questionType === "Number" && (
+                            {question.type === "Number" && (
                               <Input
                                 id={question.id}
                                 type="number"
@@ -474,7 +475,7 @@ export function CreateTaskSheet({
                             )}
 
                             {/* URL input */}
-                            {question.questionType === "URL" && (
+                            {question.type === "URL" && (
                               <Input
                                 id={question.id}
                                 type="url"
@@ -487,7 +488,7 @@ export function CreateTaskSheet({
                             )}
 
                             {/* Date input */}
-                            {question.questionType === "Date" && (
+                            {question.type === "Date" && (
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <Button
@@ -540,7 +541,7 @@ export function CreateTaskSheet({
                             )}
 
                             {/* Textarea */}
-                            {question.questionType === "Textarea" && (
+                            {question.type === "Textarea" && (
                               <textarea
                                 id={question.id}
                                 placeholder="Enter your answer"
@@ -553,33 +554,32 @@ export function CreateTaskSheet({
                             )}
 
                             {/* Select dropdown */}
-                            {question.questionType === "Select" &&
-                              question.options && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      className="w-full justify-between"
+                            {question.type === "Select" && question.options && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="w-full justify-between"
+                                  >
+                                    {formData.extra[question.id] ||
+                                      `Select an option`}
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-full">
+                                  {question.options.map((opt) => (
+                                    <DropdownMenuItem
+                                      key={opt}
+                                      onClick={() =>
+                                        handleExtraChange(question.id, opt)
+                                      }
                                     >
-                                      {formData.extra[question.id] ||
-                                        `Select an option`}
-                                      <ChevronDown className="ml-2 h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="w-full">
-                                    {question.options.map((opt) => (
-                                      <DropdownMenuItem
-                                        key={opt}
-                                        onClick={() =>
-                                          handleExtraChange(question.id, opt)
-                                        }
-                                      >
-                                        {opt}
-                                      </DropdownMenuItem>
-                                    ))}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
+                                      {opt}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
 
                             {/* Description helper text */}
                             {question.description && (

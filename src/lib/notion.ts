@@ -54,8 +54,8 @@ export type Comment = {
 export type QuestionField = {
   id: string;
   question: string;
-  questionType: "Text" | "Textarea" | "Select" | "URL" | "Date" | "Number";
-  taskType: string;
+  type: "Text" | "Textarea" | "Select" | "URL" | "Date" | "Number";
+  category: string;
   options?: string[];
   required: boolean;
   description?: string;
@@ -798,7 +798,7 @@ export async function getQuestionsByTaskType(
         },
       },
     });
-    console.log(response.results);
+
     return (response.results as Array<Record<string, unknown>>)
       .map((page) => {
         const p = page as {
@@ -813,20 +813,20 @@ export async function getQuestionsByTaskType(
             }
           )?.title?.[0]?.plain_text || "";
 
-        const questionType =
-          (p.properties["Question type"] as { select?: { name?: string } })
-            ?.select?.name || "Text";
+        const type =
+          (p.properties["Type"] as { select?: { name?: string } })?.select
+            ?.name || "Text";
 
-        const taskTypeValue =
-          (p.properties["Task type"] as { select?: { name?: string } })?.select
+        const category =
+          (p.properties["Category"] as { select?: { name?: string } })?.select
             ?.name || "";
 
-        const optionsString =
+        const options =
           (
             p.properties["Options"] as {
-              rich_text?: Array<{ plain_text?: string }>;
+              multi_select?: Array<{ name?: string; color?: string }>;
             }
-          )?.rich_text?.[0]?.plain_text || "";
+          )?.multi_select?.map((option) => option.name || "") || [];
 
         const required =
           (p.properties["Required"] as { checkbox?: boolean })?.checkbox ||
@@ -842,11 +842,9 @@ export async function getQuestionsByTaskType(
         return {
           id: p.id,
           question,
-          questionType: questionType as QuestionField["questionType"],
-          taskType: taskTypeValue,
-          options: optionsString
-            ? optionsString.split(",").map((opt) => opt.trim())
-            : undefined,
+          type: type as QuestionField["type"],
+          category: category,
+          options: options.length > 0 ? options : undefined,
           required,
           description: description || undefined,
         };
