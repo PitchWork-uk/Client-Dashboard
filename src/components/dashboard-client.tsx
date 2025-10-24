@@ -22,6 +22,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RotateCcw, Clock, CheckCircle2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DashboardClientProps {
   reviewTasks: TaskRow[];
@@ -133,18 +138,27 @@ export function DashboardClient({
                       }}
                     >
                       <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-orange-600 border-orange-600 hover:bg-orange-600 hover:text-white"
-                          onClick={() => {
-                            setReviseTask(task);
-                            setIsReviseDialogOpen(true);
-                          }}
-                        >
-                          <RotateCcw size={16} />
-                          Revise
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-orange-600 border-orange-600 hover:bg-orange-600 hover:text-white cursor-pointer"
+                              onClick={() => {
+                                setReviseTask(task);
+                                setIsReviseDialogOpen(true);
+                              }}
+                            >
+                              <RotateCcw size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            className="bg-white text-gray-900 border border-gray-200"
+                            hideArrow={true}
+                          >
+                            <p>Revise Task</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>

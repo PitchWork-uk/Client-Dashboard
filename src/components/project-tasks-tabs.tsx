@@ -5,6 +5,11 @@ import type { TaskRow } from "@/lib/notion";
 import { ApproveTaskButton } from "./approve-task-button";
 import { Button } from "@/components/ui/button";
 import { Plus, RotateCcw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CreateTaskSheet } from "./create-task-sheet";
 import {
   Dialog,
@@ -130,18 +135,27 @@ export function ProjectTasksTabs({
             }}
           >
             <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-orange-600 border-orange-600 hover:bg-orange-600 hover:text-white"
-                onClick={() => {
-                  setReviseTask(task);
-                  setIsReviseDialogOpen(true);
-                }}
-              >
-                <RotateCcw size={16} />
-                Revise
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-orange-600 border-orange-600 hover:bg-orange-600 hover:text-white cursor-pointer"
+                    onClick={() => {
+                      setReviseTask(task);
+                      setIsReviseDialogOpen(true);
+                    }}
+                  >
+                    <RotateCcw size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  className="bg-white text-gray-900 border border-gray-200"
+                  hideArrow={true}
+                >
+                  <p>Revise Task</p>
+                </TooltipContent>
+              </Tooltip>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
