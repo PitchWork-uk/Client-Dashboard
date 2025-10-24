@@ -709,11 +709,9 @@ export async function createTask(
 
     // Add Priority if provided
     if (taskData.priority) {
-      // Convert numeric priority to text format for Notion
-      const priorityText = `Priority ${taskData.priority}`;
       properties["Priority"] = {
         select: {
-          name: priorityText,
+          name: taskData.priority,
         },
       };
     }
@@ -745,22 +743,19 @@ export async function createTask(
                   rich_text: [
                     {
                       type: "text" as const,
-                      text: { content: "Category follow-up" },
+                      text: { content: "Follow-up questions" },
                     },
                   ],
                 },
               },
               ...taskData.extraDisplay.flatMap(({ label, value }) => [
                 {
-                  type: "paragraph" as const,
-                  paragraph: {
+                  type: "heading_3" as const,
+                  heading_3: {
                     rich_text: [
                       {
                         type: "text" as const,
-                        text: {
-                          content: label,
-                          annotations: { bold: true },
-                        },
+                        text: { content: label },
                       },
                     ],
                   },
