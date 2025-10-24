@@ -76,6 +76,7 @@ export function CreateTaskSheet({
   const [errorMessage, setErrorMessage] = useState("");
   const [questions, setQuestions] = useState<QuestionField[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   // Helper function to check if all required fields are filled
   const isFormValid = () => {
@@ -117,6 +118,9 @@ export function CreateTaskSheet({
       extra: { ...prev.extra, [field]: value },
     }));
 
+    // Mark field as touched
+    setTouchedFields((prev) => new Set(prev).add(field));
+
     // Clear error message when user starts filling required fields
     if (errorMessage && value.trim()) {
       setErrorMessage("");
@@ -136,6 +140,9 @@ export function CreateTaskSheet({
       category,
       extra: {},
     }));
+
+    // Clear touched fields when category changes
+    setTouchedFields(new Set());
 
     // Fetch questions for the selected category
     setLoadingQuestions(true);
@@ -162,6 +169,12 @@ export function CreateTaskSheet({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(""); // Clear any previous error messages
+
+    // Mark all required questions as touched for validation display
+    const requiredQuestionIds = questions
+      .filter((q) => q.required)
+      .map((q) => q.id);
+    setTouchedFields((prev) => new Set([...prev, ...requiredQuestionIds]));
 
     // Validate basic required fields
     const basicRequiredFields = [];
@@ -284,6 +297,7 @@ export function CreateTaskSheet({
       extra: {},
     });
     setErrorMessage("");
+    setTouchedFields(new Set());
   };
 
   return (
@@ -491,6 +505,7 @@ export function CreateTaskSheet({
                                 }
                                 className={
                                   question.required &&
+                                  touchedFields.has(question.id) &&
                                   !formData.extra[question.id]?.trim()
                                     ? "border-red-500"
                                     : ""
@@ -510,6 +525,7 @@ export function CreateTaskSheet({
                                 }
                                 className={
                                   question.required &&
+                                  touchedFields.has(question.id) &&
                                   !formData.extra[question.id]?.trim()
                                     ? "border-red-500"
                                     : ""
@@ -529,6 +545,7 @@ export function CreateTaskSheet({
                                 }
                                 className={
                                   question.required &&
+                                  touchedFields.has(question.id) &&
                                   !formData.extra[question.id]?.trim()
                                     ? "border-red-500"
                                     : ""
@@ -547,6 +564,7 @@ export function CreateTaskSheet({
                                       !formData.extra[question.id] &&
                                         "text-muted-foreground",
                                       question.required &&
+                                        touchedFields.has(question.id) &&
                                         !formData.extra[question.id]?.trim() &&
                                         "border-red-500"
                                     )}
@@ -600,6 +618,7 @@ export function CreateTaskSheet({
                                 className={cn(
                                   "w-full min-h-[96px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                                   question.required &&
+                                    touchedFields.has(question.id) &&
                                     !formData.extra[question.id]?.trim() &&
                                     "border-red-500"
                                 )}
@@ -619,6 +638,7 @@ export function CreateTaskSheet({
                                     className={cn(
                                       "w-full justify-between",
                                       question.required &&
+                                        touchedFields.has(question.id) &&
                                         !formData.extra[question.id]?.trim() &&
                                         "border-red-500"
                                     )}
