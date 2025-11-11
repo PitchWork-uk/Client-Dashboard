@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import {
   getClientByEmail,
   getTaskCountsByClientId,
@@ -18,12 +18,12 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardClient } from "@/components/dashboard-client";
 import { Clock, CheckCircle2 } from "lucide-react";
 
-function DashboardBreadcrumb() {
+function DashboardBreadcrumb({ email }: { email: string }) {
   return (
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+          <BreadcrumbLink href={`/dashboard?email=${encodeURIComponent(email)}`}>Home</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
@@ -35,13 +35,17 @@ function DashboardBreadcrumb() {
 }
 DashboardBreadcrumb.displayName = "DashboardBreadcrumb";
 
-export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const auth = cookieStore.get("auth");
-  if (!auth || !auth.value) {
-    return null;
+type DashboardPageProps = {
+  searchParams: Promise<{ email?: string }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const email = params.email;
+  
+  if (!email) {
+    redirect("/");
   }
-  const email = auth.value;
   const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
   const client = await getClientByEmail(clientDatabaseId, email);
   const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
@@ -68,7 +72,7 @@ export default async function DashboardPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                <BreadcrumbLink href={`/dashboard?email=${encodeURIComponent(email)}`}>Home</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

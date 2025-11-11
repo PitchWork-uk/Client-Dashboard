@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getClientByEmail, getProjectsByClientName } from "@/lib/notion";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -14,12 +14,26 @@ export default async function DashboardLayout({
 }: {
     children: ReactNode;
 }) {
-    const cookieStore = await cookies();
-    const auth = cookieStore.get("auth");
-    if (!auth || !auth.value) {
+    const headersList = await headers();
+    // Get email from middleware-set header (most reliable)
+    let email = headersList.get("x-email");
+    
+    // Fallback: Try to get email from referer header (works when navigating from homepage)
+    if (!email) {
+        const referer = headersList.get("referer");
+        if (referer) {
+            try {
+                const url = new URL(referer);
+                email = url.searchParams.get("email");
+            } catch {
+                // Invalid URL in referer
+            }
+        }
+    }
+    
+    if (!email) {
         redirect("/");
     }
-    const email = auth.value;
     const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
     const client = await getClientByEmail(clientDatabaseId, email);
     const clientName =
