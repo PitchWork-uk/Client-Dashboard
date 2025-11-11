@@ -191,33 +191,6 @@ export async function getTasksByProjectId(
     .filter((task) => task.title && task.title.trim() !== "");
 }
 
-export async function getClientByEmailAndPassword(
-  databaseId: string,
-  email: string,
-  password: string
-) {
-  const response = await notion.databases.query({
-    database_id: databaseId,
-    filter: {
-      and: [
-        {
-          property: "Email",
-          rich_text: {
-            equals: email,
-          },
-        },
-        {
-          property: "Password",
-          number: {
-            equals: Number(password),
-          },
-        },
-      ],
-    },
-  });
-  return response.results[0] || null;
-}
-
 export async function getClientByEmail(databaseId: string, email: string) {
   const response = await notion.databases.query({
     database_id: databaseId,

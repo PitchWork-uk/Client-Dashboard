@@ -1,6 +1,6 @@
-import { getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
+import { getClientByEmail, getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
 
-import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
     Breadcrumb,
@@ -16,12 +16,12 @@ import * as React from "react";
 import { ProjectTasksTabs } from "@/components/project-tasks-tabs";
 import { FolderOpen, Calendar, Users, Target } from "lucide-react";
 
-function ProjectBreadcrumb({ projectName }: { projectName: string }) {
+function ProjectBreadcrumb({ projectName, email }: { projectName: string; email: string }) {
     return (
         <Breadcrumb>
             <BreadcrumbList>
                 <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                    <BreadcrumbLink href={`/dashboard?email=${encodeURIComponent(email)}`}>Home</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
@@ -35,16 +35,25 @@ ProjectBreadcrumb.displayName = 'DashboardBreadcrumb';
 
 type ProjectPageProps = {
     params: Promise<{ id: string }>;
+    searchParams: Promise<{ email?: string }>;
 };
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
     const { id } = await params;
-    const cookieStore = await cookies();
-    const auth = cookieStore.get("auth");
-    if (!auth || !auth.value) {
-        return null;
+    const params_data = await searchParams;
+    const email = params_data.email;
+    
+    if (!email) {
+        redirect("/");
     }
-    const email = auth.value;
+    const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
+    const client = await getClientByEmail(clientDatabaseId, email);
+    
+    // Check if client exists
+    if (!client) {
+        redirect("/?error=Client+not+found");
+    }
+    
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await getProjectsByClientName(projectsDatabaseId, email);
     const project = projects.find((p) => p.id === id);
@@ -59,7 +68,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="text-center">
-                        <a href="/dashboard" className="text-orange-600 hover:underline">
+                        <a href={`/dashboard?email=${encodeURIComponent(email)}`} className="text-orange-600 hover:underline">
                             Return to Dashboard
                         </a>
                     </CardContent>
@@ -79,7 +88,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                                <BreadcrumbLink href={`/dashboard?email=${encodeURIComponent(email)}`}>Home</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
