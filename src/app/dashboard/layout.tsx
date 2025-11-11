@@ -36,6 +36,12 @@ export default async function DashboardLayout({
     }
     const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
     const client = await getClientByEmail(clientDatabaseId, email);
+    
+    // Check if client exists
+    if (!client) {
+        redirect("/?error=Client+not+found");
+    }
+    
     const clientName =
         hasProperties(client) && client.properties?.Name?.type === "title"
             ? (client.properties.Name.title as { plain_text: string }[])[0]?.plain_text

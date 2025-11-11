@@ -48,11 +48,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
   const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
   const client = await getClientByEmail(clientDatabaseId, email);
+  
+  // Check if client exists
+  if (!client) {
+    redirect("/?error=Client+not+found");
+  }
+  
   const databaseId = process.env.NOTION_DATABASE_WORKS_ID!;
   let ongoingCount = 0;
   let completedCount = 0;
   let reviewTasks: TaskRow[] = [];
-  if (client?.id) {
+  if (client.id) {
     const counts = await getTaskCountsByClientId(databaseId, client.id);
     ongoingCount = counts.ongoing;
     completedCount = counts.completed;

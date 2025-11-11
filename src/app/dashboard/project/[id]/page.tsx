@@ -1,4 +1,4 @@
-import { getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
+import { getClientByEmail, getProjectsByClientName, getTasksByProjectId } from "@/lib/notion";
 
 import { redirect } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -46,6 +46,14 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
     if (!email) {
         redirect("/");
     }
+    const clientDatabaseId = process.env.NOTION_DATABASE_CLIENTS_ID!;
+    const client = await getClientByEmail(clientDatabaseId, email);
+    
+    // Check if client exists
+    if (!client) {
+        redirect("/?error=Client+not+found");
+    }
+    
     const projectsDatabaseId = process.env.NOTION_DATABASE_PROJECTS_ID!;
     const projects = await getProjectsByClientName(projectsDatabaseId, email);
     const project = projects.find((p) => p.id === id);
