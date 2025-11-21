@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger,
 } from "@/components/ui/dialog";
 import { CheckCircle, MessageSquare } from "lucide-react";
 import {
