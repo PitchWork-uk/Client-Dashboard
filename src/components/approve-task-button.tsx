@@ -91,25 +91,24 @@ export function ApproveTaskButton({
         </Tooltip>
       )}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-green-600 border-green-600 hover:bg-green-600 hover:text-white cursor-pointer"
-              >
-                <CheckCircle size={16} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent
-              className="bg-white text-gray-900 border border-gray-200"
-              hideArrow={true}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-green-600 border-green-600 hover:bg-green-600 hover:text-white cursor-pointer"
+              onClick={() => setIsOpen(true)}
             >
-              <p>Approve Task</p>
-            </TooltipContent>
-          </Tooltip>
-        </DialogTrigger>
+              <CheckCircle size={16} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent
+            className="bg-white text-gray-900 border border-gray-200"
+            hideArrow={true}
+          >
+            <p>Approve Task</p>
+          </TooltipContent>
+        </Tooltip>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Approve Task</DialogTitle>

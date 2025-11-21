@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardTable } from "@/components/dashboard-table";
 import type { TaskRow } from "@/lib/notion";
 import { ApproveTaskButton } from "./approve-task-button";
@@ -21,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function ProjectTasksTabs({
+function ProjectTasksTabsContent({
   tasks,
   onRefetch,
   databaseId,
@@ -32,6 +33,8 @@ export function ProjectTasksTabs({
   databaseId: string;
   projectId?: string;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState("all");
   const [localTasks] = useState(tasks);
   const [isCreateTaskSheetOpen, setIsCreateTaskSheetOpen] = useState(false);
@@ -60,8 +63,15 @@ export function ProjectTasksTabs({
     if (onRefetch) {
       onRefetch();
     } else {
-      // Simple refresh for now
-      window.location.reload();
+      // Preserve email parameter when reloading
+      const email = searchParams.get("email");
+      const currentPath = window.location.pathname;
+      if (email) {
+        router.push(`${currentPath}?email=${encodeURIComponent(email)}`);
+        router.refresh();
+      } else {
+        window.location.reload();
+      }
     }
   };
 
@@ -94,7 +104,15 @@ export function ProjectTasksTabs({
         if (onRefetch) {
           onRefetch();
         } else {
-          window.location.reload();
+          // Preserve email parameter when reloading
+          const email = searchParams.get("email");
+          const currentPath = window.location.pathname;
+          if (email) {
+            router.push(`${currentPath}?email=${encodeURIComponent(email)}`);
+            router.refresh();
+          } else {
+            window.location.reload();
+          }
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -288,5 +306,18 @@ export function ProjectTasksTabs({
         onTaskCreated={handleTaskApproved}
       />
     </>
+  );
+}
+
+export function ProjectTasksTabs(props: {
+  tasks: TaskRow[];
+  onRefetch?: () => void;
+  databaseId: string;
+  projectId?: string;
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProjectTasksTabsContent {...props} />
+    </Suspense>
   );
 }

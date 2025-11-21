@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardTable } from "./dashboard-table";
 import { TaskRow } from "@/lib/notion";
 import {
@@ -33,21 +34,26 @@ interface DashboardClientProps {
   databaseId: string;
 }
 
-export function DashboardClient({
+function DashboardClientContent({
   reviewTasks: initialReviewTasks,
   databaseId,
 }: DashboardClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [reviewTasks] = useState(initialReviewTasks);
   const [isReviseDialogOpen, setIsReviseDialogOpen] = useState(false);
   const [reviseTask, setReviseTask] = useState<TaskRow | null>(null);
   const [isReviseLoading, setIsReviseLoading] = useState(false);
 
   const handleTaskApproved = () => {
-    // Remove the approved task from the list
-    // In a real implementation, you might want to refetch the data
-    // For now, we'll just remove the task from the local state
-    // This is a simplified approach - ideally you'd refetch from the server
-    window.location.reload(); // Simple refresh for now
+    // Preserve email parameter when reloading
+    const email = searchParams.get("email");
+    if (email) {
+      router.push(`/dashboard?email=${encodeURIComponent(email)}`);
+      router.refresh();
+    } else {
+      window.location.reload();
+    }
   };
 
   const handleRevise = async () => {
@@ -69,7 +75,14 @@ export function DashboardClient({
       if (response.ok) {
         setIsReviseDialogOpen(false);
         setReviseTask(null);
-        window.location.reload();
+        // Preserve email parameter when reloading
+        const email = searchParams.get("email");
+        if (email) {
+          router.push(`/dashboard?email=${encodeURIComponent(email)}`);
+          router.refresh();
+        } else {
+          window.location.reload();
+        }
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error(
@@ -206,5 +219,13 @@ export function DashboardClient({
         />
       </CardContent>
     </Card>
+  );
+}
+
+export function DashboardClient(props: DashboardClientProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardClientContent {...props} />
+    </Suspense>
   );
 }
